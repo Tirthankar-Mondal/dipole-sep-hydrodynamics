@@ -1,0 +1,1 @@
+#1: See that if only a finite fraction of sites are frozen, get this for an equal density of 0,1 type particle see that if this fraction is fixed with different system size, eventually saturating at thermodynamic limit.
