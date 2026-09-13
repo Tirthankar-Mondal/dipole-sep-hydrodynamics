@@ -1,0 +1,32 @@
+# Intermediate-scale production run for H1 (frozen fraction f_N vs N).
+# 20 linearly equally spaced N values from 100 to 10,000, rounded to
+# nearest int. Uses the rolling-window estimator (definition B, method 1
+# / self-scaling patience burn-in, locked in 2026-09-13).
+#
+# DO NOT RUN without first estimating cost (runtime/memory) and
+# getting explicit approval, per CLAUDE.md's inviolable rules.
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+N_values: [100, 621, 1142, 1663, 2184, 2705, 3226, 3747, 4268, 4789, 5311, 5832, 6353, 6874, 7395, 7916, 8437, 8958, 9479, 10000]
+
+estimator: rolling
+
+patience_multiplier: 20
+max_steps_multiplier: 10
+
+rolling:
+  W_multiplier: 5
+  M: 10
+  c_selfscale: 5
+  max_extra_windows: 200
+
+ensemble:
+  target_relative_se: 0.01
+  min_samples: 20
+  batch_size: 20
+  max_samples_per_N: 5000
+
+master_seed: 20260914

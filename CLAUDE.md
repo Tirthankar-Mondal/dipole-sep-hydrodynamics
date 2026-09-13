@@ -186,6 +186,14 @@ After every significant computational experiment, append an entry to
 
 Do not fill in the Interpretation field. That is the researcher's job.
 
+**Log as you go, not retroactively.** Append the RESEARCH_LOG.md entry
+in the same turn you report a significant result to the researcher —
+don't defer it and don't reconstruct it later from memory. This applies
+to methodology/validation experiments and significant code changes, not
+just final production runs. If it's unclear whether something rises to
+"significant enough to log," ask the researcher rather than silently
+deciding either way.
+
 ---
 
 ## Code standards
@@ -220,3 +228,44 @@ Do not fill in the Interpretation field. That is the researcher's job.
 Each project may have its own `CLAUDE.md` in its root directory that
 extends or overrides these rules. Project-level rules take precedence
 over this file.
+
+---
+
+# Mobile Notifications (paste into your project CLAUDE.md)
+
+## Notification Rules
+
+You have access to a mobile notification script. Use it automatically — don't ask first.
+
+**Script location:** `~/Documents/Research/tools/notify.sh`
+
+### When to notify
+
+| Situation | Command |
+|-----------|---------|
+| Long run finishes (>30s) | `~/Documents/Research/tools/notify.sh done "brief description"` |
+| Need user approval before proceeding | `~/Documents/Research/tools/notify.sh wait "what decision is needed"` |
+| Job failed / crashed | `~/Documents/Research/tools/notify.sh fail "what failed and why"` |
+| Background job launched | `~/Documents/Research/tools/notify.sh info "job name, estimated time"` |
+
+### Rules
+
+1. **Always notify** when a background command you launched finishes — include what it was and how long it took.
+2. **Always notify** before pausing for approval on anything that will block progress.
+3. **Keep descriptions short** (≤ 10 words) but specific: say which project, which script, which parameter range — not just "job done".
+4. **Never notify** for quick in-context computations, file reads, or edits under ~10 seconds.
+
+### Examples of good descriptions
+
+- `"Frozen fraction N=100..4800, all L done"`
+- `"KPZ sweep beta complete, 847 samples"`
+- `"Toda truncation: approve running L=8 exact diag?"`
+- `"Noise-Mpemba T=0.01 run failed: NaN at step 340"`
+
+### For long background runs
+
+Wrap with run_job.sh so notification is automatic even if you forget:
+
+```bash
+~/Documents/Research/tools/run_job.sh "Frozen fraction production" python3 numerics/scripts/run_frozen_fraction.py numerics/config/production.yaml
+```

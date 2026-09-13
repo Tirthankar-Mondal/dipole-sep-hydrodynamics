@@ -1,0 +1,27 @@
+# Production parameters for H1 (frozen fraction f_N vs N).
+# See HYPOTHESES.md for the definitions and the confirmed design
+# choices this config encodes (patience scaling, SE target, etc).
+#
+# DO NOT RUN without first estimating cost (runtime/memory) and
+# getting explicit approval, per CLAUDE.md's inviolable rules.
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+N_values: [100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400]
+
+# patience_multiplier/max_steps_multiplier checked empirically at L up to
+# 4800 (2026-09-12): steps_taken stayed at ~16-22% of the max_steps cap
+# and steps/L stabilized around ~29-30 (not still rising), so no change
+# needed at this N range. Re-check if N is extended further.
+patience_multiplier: 20      # patience = patience_multiplier * L
+max_steps_multiplier: 10     # max_steps = max_steps_multiplier * patience
+
+ensemble:
+  target_relative_se: 0.01
+  min_samples: 20
+  batch_size: 20
+  max_samples_per_N: 5000    # safety cap, not a physical parameter
+
+master_seed: 20260912

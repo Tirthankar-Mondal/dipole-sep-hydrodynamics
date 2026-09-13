@@ -1,0 +1,32 @@
+# Quick check parameters - run this before the production configs.
+# See H1 in HYPOTHESES.md for the definitions of frozen_fraction,
+# patience_multiplier, max_steps_multiplier.
+#
+# Uses the rolling-window estimator (definition B, method 1 / self-scaling
+# patience burn-in, locked in 2026-09-13 -- see RESEARCH_LOG.md for the
+# comparison against a drift-gated alternative that led to this choice).
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+N_values: [200, 400, 800, 1600]
+
+estimator: rolling
+
+patience_multiplier: 20      # initial coarse burn-in: patience = patience_multiplier * L
+max_steps_multiplier: 10     # safety cap on that coarse stage
+
+rolling:
+  W_multiplier: 5             # measurement window W = W_multiplier * L
+  M: 10                       # number of windows averaged for the final estimate
+  c_selfscale: 5              # self-scaling burn-in: extend until (t-G) >= c_selfscale * G
+  max_extra_windows: 200      # safety cap on the self-scaling extension
+
+ensemble:
+  target_relative_se: 0.10    # looser than production - quick check only
+  min_samples: 20
+  batch_size: 20
+  max_samples_per_N: 200
+
+master_seed: 12345

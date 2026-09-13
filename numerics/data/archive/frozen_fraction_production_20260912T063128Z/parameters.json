@@ -1,0 +1,28 @@
+{
+  "config_path": "numerics/config/production.yaml",
+  "config": {
+    "model": {
+      "density": 0.5,
+      "boundary_condition": "periodic"
+    },
+    "N_values": [
+      100,
+      200,
+      400,
+      800,
+      1600,
+      2400,
+      4800
+    ],
+    "patience_multiplier": 20,
+    "max_steps_multiplier": 10,
+    "ensemble": {
+      "target_relative_se": 0.01,
+      "min_samples": 20,
+      "batch_size": 20,
+      "max_samples_per_N": 5000
+    },
+    "master_seed": 20260912
+  },
+  "timestamp_utc": "20260912T063128Z"
+}

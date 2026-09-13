@@ -1,0 +1,90 @@
+[
+  {
+    "L": 100,
+    "master_seed": 20260912,
+    "n_samples": 1420,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.3489929577464789,
+    "frozen_fraction_se": 0.0034802029379397245
+  },
+  {
+    "L": 200,
+    "master_seed": 20260912,
+    "n_samples": 760,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.35228947368421054,
+    "frozen_fraction_se": 0.0034938592935271863
+  },
+  {
+    "L": 400,
+    "master_seed": 20260912,
+    "n_samples": 400,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.3567125,
+    "frozen_fraction_se": 0.003434653982473825
+  },
+  {
+    "L": 800,
+    "master_seed": 20260912,
+    "n_samples": 160,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36400781249999997,
+    "frozen_fraction_se": 0.003619097220415145
+  },
+  {
+    "L": 1600,
+    "master_seed": 20260912,
+    "n_samples": 100,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36379374999999997,
+    "frozen_fraction_se": 0.003440285315551457
+  },
+  {
+    "L": 3200,
+    "master_seed": 20260912,
+    "n_samples": 40,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36028125,
+    "frozen_fraction_se": 0.0032375524386902554
+  },
+  {
+    "L": 6400,
+    "master_seed": 20260912,
+    "n_samples": 20,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36046875,
+    "frozen_fraction_se": 0.0035845849953398796
+  },
+  {
+    "L": 12800,
+    "master_seed": 20260912,
+    "n_samples": 20,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36212890625000005,
+    "frozen_fraction_se": 0.0032504471073637447
+  },
+  {
+    "L": 25600,
+    "master_seed": 20260912,
+    "n_samples": 20,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.36151953125,
+    "frozen_fraction_se": 0.0015566680327401261
+  },
+  {
+    "L": 51200,
+    "master_seed": 20260912,
+    "n_samples": 20,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.360646484375,
+    "frozen_fraction_se": 0.0013203197230756572
+  },
+  {
+    "L": 102400,
+    "master_seed": 20260912,
+    "n_samples": 20,
+    "n_discarded": 0,
+    "frozen_fraction_mean": 0.35797021484374997,
+    "frozen_fraction_se": 0.0009662906211552663
+  }
+]

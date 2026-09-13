@@ -1,0 +1,30 @@
+# Large-N fitting range for H1's power-law fit (f_N = f_inf + a/N^alpha).
+# 20 linearly equally spaced N values from 1e4 to 3e5 (rounded to the
+# nearest even integer for exact density=0.5). Originally specced as 100
+# points up to 1e6, but that projected to ~11.7 days (real-data-calibrated,
+# not just extrapolated -- verified with a timing check at N=300k/600k/1M
+# on 2026-09-12). Cut to 20 points and max N=300000 (a real calibrated
+# data point, so no further extrapolation risk) for a realistic estimate
+# of ~12.8 hours instead.
+#
+# All other parameters identical to production.yaml.
+#
+# DO NOT RUN without first estimating cost (runtime/memory) and
+# getting explicit approval, per CLAUDE.md's inviolable rules.
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+N_values: [10000, 25264, 40526, 55790, 71054, 86316, 101580, 116842, 132106, 147368, 162632, 177896, 193158, 208422, 223684, 238948, 254212, 269474, 284738, 300000]
+
+patience_multiplier: 20      # patience = patience_multiplier * L
+max_steps_multiplier: 10     # max_steps = max_steps_multiplier * patience
+
+ensemble:
+  target_relative_se: 0.01
+  min_samples: 20
+  batch_size: 20
+  max_samples_per_N: 5000    # safety cap, not a physical parameter
+
+master_seed: 20260912
