@@ -1,0 +1,48 @@
+{
+  "config_path": "numerics/config/production_intermediate.yaml",
+  "config": {
+    "model": {
+      "density": 0.5,
+      "boundary_condition": "periodic"
+    },
+    "N_values": [
+      100,
+      621,
+      1142,
+      1663,
+      2184,
+      2705,
+      3226,
+      3747,
+      4268,
+      4789,
+      5311,
+      5832,
+      6353,
+      6874,
+      7395,
+      7916,
+      8437,
+      8958,
+      9479,
+      10000
+    ],
+    "estimator": "rolling",
+    "patience_multiplier": 20,
+    "max_steps_multiplier": 10,
+    "rolling": {
+      "W_multiplier": 10,
+      "M": 20,
+      "c_selfscale": 10,
+      "max_extra_windows": 400
+    },
+    "ensemble": {
+      "target_relative_se": 0.01,
+      "min_samples": 40,
+      "batch_size": 20,
+      "max_samples_per_N": 5000
+    },
+    "master_seed": 20260914
+  },
+  "timestamp_utc": "20260913T084452Z"
+}

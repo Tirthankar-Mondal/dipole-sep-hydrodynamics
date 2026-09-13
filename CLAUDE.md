@@ -153,6 +153,12 @@ correct. This applies to:
   `fig_lyapunov_scaling.py` → `fig_lyapunov_scaling.pdf`.
 - Do not overwrite a figure that has already been referenced in notes or
   a draft. Create a new versioned file instead.
+- Before running any command likely to take more than 2 minutes —
+  including quick calibration/diagnostic checks and background jobs, not
+  just full production runs — state an estimated runtime up front, even
+  a rough one. This is separate from (and broader than) the inviolable
+  rule above requiring cost estimation and explicit approval for
+  genuinely expensive jobs.
 
 ---
 

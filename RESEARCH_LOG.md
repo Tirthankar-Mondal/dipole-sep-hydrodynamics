@@ -834,5 +834,215 @@ log decay, as done previously for the now-archived cumulative-definition
 data) has not yet been redone for the rolling-window data -- belongs in
 `notebooks/analysis/` when undertaken.
 
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
+
+---
+
+## 2026-09-13 — H1: production_intermediate.yaml re-run with larger W/M/c_selfscale/min_samples
+
+**Question:** Researcher observed the f_N vs N plot (rolling-window,
+original settings W=5L/M=10/c_selfscale=5/min_samples=20) still looked
+wiggly, and wanted to check whether extending the burn-in wait,
+averaging over more windows, and using more realizations per N smooths
+it out.
+
+**Hypothesis:** N/A -- diagnostic re-run, not a new physics hypothesis.
+
+**Method:** Same 20 N values as the original production_intermediate.yaml
+(100-10,000), same model/ensemble target (density=0.5, PBC, target
+relative SE=1%), but with W_multiplier 5->10, M 10->20, c_selfscale
+5->10, max_extra_windows 200->400 (doubled to preserve the same safety
+margin), min_samples 20->40. Cost estimated beforehand from real timing
+calibration at 6 representative N values (100, 1142, 3226, 5311, 7395,
+10000): ~6.36h realistic. Runtime: 6h03m actual.
+
+**Result:**
+- L=100: f_N=0.3506 +- 0.0035 (n=1420, discarded=0)
+- L=621: f_N=0.3570 +- 0.0033 (n=240, discarded=0)
+- L=1142: f_N=0.3623 +- 0.0034 (n=140, discarded=0)
+- L=1663: f_N=0.3596 +- 0.0035 (n=80, discarded=0)
+- L=2184: f_N=0.3601 +- 0.0036 (n=60, discarded=0)
+- L=2705: f_N=0.3618 +- 0.0035 (n=60, discarded=0)
+- L=3226: f_N=0.3555 +- 0.0029 (n=60, discarded=0)
+- L=3747: f_N=0.3669 +- 0.0025 (n=40, discarded=0)
+- L=4268: f_N=0.3609 +- 0.0028 (n=60, discarded=0)
+- L=4789: f_N=0.3646 +- 0.0028 (n=40, discarded=0)
+- L=5311: f_N=0.3616 +- 0.0024 (n=40, discarded=0)
+- L=5832: f_N=0.3631 +- 0.0021 (n=40, discarded=0)
+- L=6353: f_N=0.3574 +- 0.0030 (n=40, discarded=0)
+- L=6874: f_N=0.3579 +- 0.0022 (n=40, discarded=0)
+- L=7395: f_N=0.3627 +- 0.0026 (n=40, discarded=0)
+- L=7916: f_N=0.3598 +- 0.0021 (n=40, discarded=0)
+- L=8437: f_N=0.3588 +- 0.0021 (n=40, discarded=0)
+- L=8958: f_N=0.3618 +- 0.0024 (n=40, discarded=0)
+- L=9479: f_N=0.3591 +- 0.0018 (n=40, discarded=0)
+- L=10000: f_N=0.3618 +- 0.0020 (n=40, discarded=0)
+
+All realizations converged (zero discarded) at every N. Raw
+per-realization samples and parameters are in
+`numerics/data/raw/frozen_fraction_production_intermediate_20260913T084452Z/`.
+Note this overwrites the config file's N_values/settings in-place rather
+than as a separate config -- the original (W=5L/M=10/c=5/min_samples=20)
+run's data remains at
+`frozen_fraction_production_intermediate_20260913T064716Z/` for
+comparison, only `production_intermediate.yaml` itself now reflects the
+new settings.
+
+**Interpretation:** [left blank]
+
+**Next question:** Build a side-by-side comparison plot (old settings vs
+new settings, same 20 N values) to see whether the new settings actually
+reduced point-to-point wiggle, per researcher request -- not yet done at
+the time of this entry.
+
+**Git commit:** uncommitted (this log entry is an unstaged working-tree
+change on top of a6fb435)
+
+---
+
+## 2026-09-13 — Comparing old vs new rolling-window settings
+
+**Question:** Does the new settings (W_multiplier 5->10, M 10->20,
+c_selfscale 5->10, min_samples 20->40) actually reduce the point-to-point
+wiggle in f_N vs N seen in the original plot?
+
+**Hypothesis:** Longer burn-in wait + more windows averaged + more
+realizations per N was expected to smooth the curve (reduce scatter).
+
+**Method:** New notebook
+`numerics/notebooks/exploratory/settings_comparison.ipynb`, comparing
+the two production_intermediate.yaml runs on the identical 20-point N
+grid (100-10,000): old settings
+(`frozen_fraction_production_intermediate_20260913T064716Z`) vs new
+settings (`frozen_fraction_production_intermediate_20260913T084452Z`).
+Quantified "wiggle" as the weighted RMS residual from a degree-2
+polynomial in ln(N) fit to each series (a smoothing reference, not a
+physics model).
+
+**Result:**
+- Weighted RMS residual from the smooth reference: old=0.00236,
+  new=0.00244 (ratio 1.032) -- the new settings did **not** reduce
+  scatter around a smooth trend; if anything marginally more.
+- However, 18 of the 20 points shifted **downward** under the new
+  settings, by a fairly uniform ~0.002-0.006 across most of the range
+  (e.g. N=100: 0.3538->0.3506, N=8958: 0.3676->0.3618, N=10000:
+  0.3652->0.3618) -- a small, consistent systematic shift, not
+  noise reduction. Full per-N diff table is in the notebook.
+
+**Interpretation:** [left blank]
+
+**Next question:** Why the systematic downward shift, given wiggle
+itself didn't improve -- e.g. whether longer burn-in (c_selfscale=10)
+is revealing a lower true plateau that the old c_selfscale=5 slightly
+overestimated by measuring before full equilibration, versus some other
+explanation. Not yet investigated.
+
 **Git commit:** uncommitted (new notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+currently unstaged working-tree changes on top of a6fb435)
+
+---
+
+## 2026-09-13 — Quantifying the downward shift between old/new rolling-window settings
+
+**Question:** Follow-up to the entry above -- why did the new settings
+(W_multiplier 5->10, M 10->20, c_selfscale 5->10, min_samples 20->40)
+shift f_N systematically downward, given the wiggle diagnostic showed no
+improvement in scatter?
+
+**Hypothesis:** Two of the four changed parameters can independently
+push f_N down: (1) W_multiplier doubling is expected to lower f_N by
+construction -- f_B is defined as the fraction of sites with no flip in
+a trailing window of length W, and the W=10L window strictly contains
+the W=5L window, so f_B(W=10L) <= f_B(W=5L) on any single trajectory,
+always. (2) c_selfscale doubling (longer burn-in) could also lower f_N
+if the frozen-site population was still slowly shrinking (equilibration
+artifact) under the old, shorter burn-in. M and min_samples doubling
+were not expected to bias f_N, only reduce its variance.
+
+**Method:** Using the same two runs as the entry above
+(`frozen_fraction_production_intermediate_20260913T064716Z` = old,
+`frozen_fraction_production_intermediate_20260913T084452Z` = new, same
+20-point N grid), computed the inverse-variance-weighted mean of
+(f_new - f_old) across all 20 N, the fraction of points shifting down,
+and the slope of shift vs ln(N) (to check whether the shift is uniform
+across N or grows with N).
+
+**Result:**
+- Weighted mean shift (new - old): -0.00298 +- 0.00088 (3.4 sigma from
+  zero; ~0.82% of f_N).
+- 19 of 20 points shifted down (not 18 as estimated verbally in an
+  earlier turn before this quantification -- corrected here).
+- 0 of 20 individual points exceed 1.96 sigma on their own; the effect
+  is only visible pooled across N.
+- Shift vs ln(N): slope = -0.000126 +- 0.000361 (p=0.731) -- consistent
+  with a uniform (N-independent) offset, not one that grows with N.
+- The four parameter changes were made simultaneously, so this data
+  cannot on its own separate the W-doubling effect from the
+  c_selfscale-doubling effect. The N-independence of the shift is weak
+  evidence favoring the W-doubling (definitional) explanation over the
+  equilibration-artifact explanation, since the intermediate-timescale
+  site fraction that W doubling would exclude is intensive, whereas an
+  equilibration artifact would plausibly grow with N (equilibration time
+  G/L was observed to grow from ~4 to ~50 across this N range in earlier
+  validation) -- this is not conclusive.
+- A clean disentangling test (recording f_B at both W=5L and W=10L on
+  the same trajectory, since one is an exact subset of two consecutive
+  instances of the other) was proposed but not yet run.
+
+**Interpretation:** [left blank]
+
+**Next question:** Run the disentangling test above if a clean
+attribution between the W effect and the c_selfscale effect is wanted.
+Not yet done as of this entry -- researcher moved on to specifying
+`production_intermediate.yaml`'s next re-run (old rolling settings,
+min_samples raised to 40 only) and `production_large_scale.yaml`'s N
+grid instead.
+
+**Git commit:** uncommitted (this log entry is a backfill -- the
+analysis was reported to the researcher in conversation before this
+entry was written, which is against the "log as you go" rule in
+CLAUDE.md; noted here as a process error, not repeated for the entry
+below.)
+
+---
+
+## 2026-09-13 — Last-5-point average of f_N from production_intermediate (both settings)
+
+**Question:** Researcher asked: averaging over the last few f_N values
+from `production_intermediate` (the largest-N points reached so far),
+what value does f_N look like it's sitting at in that range?
+
+**Hypothesis:** N/A -- requested diagnostic, not a model fit or
+extrapolation to N -> infinity.
+
+**Method:** Inverse-variance-weighted mean of f_N over the last 5 N
+values (N=7916, 8437, 8958, 9479, 10000) of each of the two existing
+`production_intermediate.yaml` runs (old settings:
+`frozen_fraction_production_intermediate_20260913T064716Z`; new
+settings: `frozen_fraction_production_intermediate_20260913T084452Z`).
+No fitting, no extrapolation -- a local average at the largest N
+reached so far under each setting.
+
+**Result:**
+- Old settings (W=5L, M=10, c_selfscale=5, min_samples=20): weighted
+  mean = 0.36373 +- 0.00106 (simple unweighted mean 0.36402 +- 0.00106).
+- New settings (W=10L, M=20, c_selfscale=10, min_samples=40): weighted
+  mean = 0.36011 +- 0.00092 (simple unweighted mean 0.36024 +- 0.00064).
+- The two differ by ~0.0036 (about 3 sigma combined), consistent with
+  the W-doubling discussion in the entry above -- not treated here as
+  evidence for which is closer to any N -> infinity limit.
+
+**Interpretation:** Researcher's stated expectation (given verbatim,
+not derived by Claude): the frozen fraction is expected to stay in this
+range, with 0.36 as the leading two digits, in the N -> infinity limit.
+
+**Next question:** The disentangling test (W=5L vs W=10L on identical
+trajectories) proposed in the entry above would clarify which of the
+two settings' plateau value is the more reliable one to compare against
+this expectation. `production_large_scale.yaml` (currently N=10,000 to
+20,000 in steps of 1,000, cost estimated at ~4.2-4.6h, scheduled to
+launch automatically at 2026-09-14 00:00 local via a session-only cron
+job) will extend the range this expectation can be checked against.
+
+**Git commit:** uncommitted (this log entry, plus the backfilled entry
+above, are unstaged working-tree changes on top of a6fb435)
