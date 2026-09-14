@@ -1,0 +1,1145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,
+            citecolor=blue!50!black]{hyperref}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+\captionsetup{font=small,labelfont=bf}
+\setlist{itemsep=1pt,topsep=3pt,parsep=0pt}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+
+\definecolor{estab}{RGB}{20,100,40}
+\definecolor{obsv}{RGB}{180,110,0}
+\definecolor{conj}{RGB}{150,40,40}
+\newcommand{\Est}{\textcolor{estab}{\textbf{[ESTABLISHED]}}}
+\newcommand{\Obs}{\textcolor{obsv}{\textbf{[STRONG OBSERVATION]}}}
+\newcommand{\Conj}{\textcolor{conj}{\textbf{[CONJECTURE]}}}
+\newcommand{\Unc}{\textcolor{conj}{\textbf{[UNCERTAIN]}}}
+\newcommand{\NEW}{\textcolor{blue!55!black}{\textsf{\small[new, this document]}}}
+
+\newcommand{\fig}[1]{numerics/results/figures/final/#1}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Dipole-conserving chain --- research progress}
+\fancyhead[R]{\small 14 September 2026}
+\fancyfoot[C]{\small\thepage}
+
+\title{\vspace{-1.2cm}\textbf{Frozen sites and active-region statistics in a
+dipole-conserving lattice chain}\\[2mm]
+\large Research-progress record}
+\author{Project: \texttt{dipole-sep-hydrodynamics} \\
+\small Compiled from the repository state at commit \texttt{03b6349} plus
+subsequent uncommitted work}
+\date{14 September 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+\noindent This document reconstructs the current state of the project from
+the repository: source code, configuration files, raw data, notebooks, the
+research log, the hypothesis file and the literature notes. Numbers quoted
+here were recomputed from the raw data rather than copied from the log, and
+all figures are regenerated from raw data by
+\texttt{numerics/scripts/make\_progress\_figures.py}. Three verification
+measurements that the project had listed as open were carried out while
+preparing this document and are marked \NEW\ throughout; they are also
+recorded in \texttt{RESEARCH\_LOG.md}. Interpretations are labelled
+explicitly and separated from measurements, and Section~\ref{sec:problems}
+is a deliberately adversarial assessment of what is weak, unsupported or
+internally inconsistent in the work so far.
+\end{abstract}
+
+\section*{Executive summary}
+\addcontentsline{toc}{section}{Executive summary}
+
+\begin{itemize}
+\item \textbf{Model.} A periodic chain of $L$ sites, $s_i=\pm1$ at density
+exactly $1/2$. The only allowed move flips a 4-site window between
+$(+,-,-,+)$ and $(-,+,+,-)$ (i.e.\ $1001\leftrightarrow0110$), conserving
+both magnetisation and dipole moment. One uniformly chosen active window
+flips per step.
+
+\item \textbf{H1 (frozen fraction) --- saturation is well supported.}
+Across $N=100$ to $3\times10^5$ the frozen fraction is flat.
+A constant fits; logarithmic decay is excluded by a huge margin
+($\chi^2_\nu\approx2.8\times10^3$); a pure power law fits only with an
+exponent consistent with zero, $\alpha=-0.00083\pm0.00050$, 95\%~CI
+$[-0.0018,+0.00015]$. Best estimates:
+$f=0.35988\pm0.00015$ (definition A, 31 points) and
+$f=0.36303\pm0.00065$ (definition B at $W=5L$, 24 points).
+
+\item \textbf{The $W$-dependence worry is now bounded.} \NEW\ Definition B
+makes the window $W$ part of the observable. Measuring $f_B(W)$ along
+single trajectories shows it \emph{saturates} for $W\gtrsim20L$: the
+production choice $W=5L$ overshoots the plateau by only
+$+0.003$ to $+0.004$, and $W=10L$ by $\lesssim0.001$.
+
+\item \textbf{The estimator is validated against ground truth.} \NEW\ Exact
+breadth-first enumeration of the Krylov sector at $L\le60$ gives the
+\emph{static} frozen fraction that H1 actually defines. Once
+fully-jammed configurations --- which the dynamical estimator structurally
+cannot sample, and which vanish exponentially with $L$ --- are excluded from
+both sides, exact and dynamical agree with $\chi^2_\nu=0.83$ over six
+matched $L$. This closes the \Unc\ flag H1 has carried since it was stated.
+
+\item \textbf{Strong fragmentation, measured directly.} \NEW\ Median Krylov
+sector size grows as $(1.135)^L$ against $(1.969)^L$ half-filled
+configurations, so a sector occupies a fraction $\sim(0.576)^L$ of its
+symmetry sector.
+
+\item \textbf{H2 (active-region lengths) --- exponential, not power law.}
+The distribution of active-region lengths is exponential with
+$\lambda\approx13$ sites, \emph{independent of $L$} over
+$L=100$--$12800$. A full-range exponential fit beats a power law at all
+eight $L$ ($R^2=0.910$--$0.966$ versus $0.872$--$0.906$), and the rescaled
+distributions collapse. Mean nonzero length $15.4$--$16.1$ and zero-gap
+rate $0.885$--$0.889$ are both flat in $L$.
+
+\item \textbf{The forbidden lengths are now explained.} \NEW\ Active-region
+lengths $1,2,3$ and $5$ never occur; $4$ and all $\ell\ge6$ do. An
+exhaustive finite check (zero violations over all $2^5$ configurations)
+plus a short argument shows this is exact, not statistical: two window
+positions one site apart can never both fire in isolation. \emph{This
+derivation has not yet been reviewed by the researcher.}
+
+\item \textbf{Physical reading (interpretation, not measurement).} A finite
+frozen fraction with exponentially distributed, $L$-independent active
+regions means active clusters stay microscopic as $L\to\infty$. In the
+language of the project README, this is the ``small clusters'' branch:
+there is no scale-free active structure available to carry an anomalous
+hydrodynamic tail.
+
+\item \textbf{Main open weaknesses.} No production run above $N=10^4$ under
+the current definition; \texttt{HYPOTHESES.md} still states a static order
+parameter while every production number is a dynamical proxy; the
+$W$-scan settings comparison changed four parameters at once; and the
+literature's exact analytic predictions have not been evaluated
+numerically to compare against our $0.36$.
+\end{itemize}
+
+\tableofcontents
+\newpage
+
+\section{Research question and motivation}
+
+\subsection{The model}
+The system is a ring of $L$ sites carrying $s_i\in\{+1,-1\}$ (equivalently
+occupation $n_i\in\{1,0\}$), at density exactly $1/2$. Write a 4-site window
+starting at $i$ as $(s_i,s_{i+1},s_{i+2},s_{i+3})$ with indices mod $L$. The
+window is \emph{active} iff it equals
+\begin{equation}
+A=(+1,-1,-1,+1) \quad\text{or}\quad B=(-1,+1,+1,-1),
+\end{equation}
+i.e.\ $1001$ or $0110$ in occupation language, and the only allowed move is
+$A\leftrightarrow B$ on an active window. The dynamics is a classical
+continuous-time-like stochastic process implemented as: at each step, pick
+one active window uniformly at random and flip it
+(\texttt{numerics/src/dipole\_chain.py}).
+
+The move conserves the particle number $Q=\sum_i n_i$ and the dipole moment
+$P=\sum_i i\,n_i$ (modulo $L$ under periodic boundaries), because it moves
+two particles in opposite directions by equal amounts. This is the defining
+structure of a dipole-conserving / ``fracton'' lattice gas: single particles
+are immobile, only correlated pairs move.
+
+A useful exact fact, used below: for a uniformly random half-filled
+configuration the probability that a given window is active is
+$2/2^4=1/8$, so $\langle n_{\text{active}}\rangle=L/8=12.5\%$ of $L$ at
+$t=0$; the research log records that this stays at $12.5$--$13.6\%$ in
+steady state across $L=10^2$--$10^5$.
+
+\subsection{Why the problem is interesting}
+The project README states the motivation directly. Because the kinetic
+constraint is strong, ``some regions do not evolve at all''. The programme
+is then:
+\begin{enumerate}
+\item establish that a \emph{finite fraction} of the chain is frozen in the
+thermodynamic limit (not a vanishing one);
+\item determine whether the length distribution of the \emph{active} regions
+between frozen sites is exponential, $\sim e^{-\ell/\eta}$, or a power law,
+$\sim \ell^{-\alpha}$.
+\end{enumerate}
+The second question is the one with physical consequences. If the
+distribution is exponential, active regions are microscopic clusters whose
+size does not grow with $L$. If it is a power law, arbitrarily large active
+clusters survive in the thermodynamic limit, and the README's target
+observable --- the global density--density correlation function --- could
+acquire an anomalous tail: even with a finite frozen fraction arresting
+global transport, a perturbation could still relax globally through rare
+large active regions. The README explicitly contemplates abandoning this
+model for another if the distribution turns out exponential.
+
+\subsection{Hypotheses as stated in the project}
+\begin{description}[style=nextline,leftmargin=1.2cm]
+\item[H1 (\texttt{HYPOTHESES.md}, 12 Sep)] $f_N\to f_\infty>0$ as
+$N\to\infty$ (candidate H1a), against H1b $f_N\sim cN^{-\alpha}$ and
+H1c $f_N\sim c/\ln N$. The stated order parameter is \emph{static}: a site
+is frozen iff no sequence of allowed moves starting from the initial
+configuration can ever change it. The file carries a flagged
+\Unc: this static/dynamical equivalence had never been verified by
+enumeration.
+\item[H2 (14 Sep)] The active-region length distribution either collapses
+onto an $L$-independent memoryless form (H2a) or retains an anomalously
+heavy tail (H2b). The measured quantity is the gap between consecutive
+frozen sites at a single post-burn-in snapshot, with zero-length gaps
+discarded by explicit researcher instruction.
+\item[Q3 (\texttt{QUESTIONS.md} \#3, 14 Sep)] Why do active-region lengths
+$1,2,3,5$ never occur while $4$ and all $\ell\ge6$ do?
+\end{description}
+
+\subsection{Literature context contained in the project}
+Seven papers were read and assessed (\texttt{LITERATURE.md}; applicable
+details in \texttt{numerics/theory/Notes/}). The directly relevant content:
+\begin{itemize}
+\item \textbf{Classen-Howes (2024) thesis, Ch.~5 §5.1} treats exactly this
+model ($d=2$ hardcore, range $k=4$). Its general result is a
+strong-to-weak fragmentation transition at critical filling
+$\nu_c=1/(k-2)$; for $k=4$ this is $\nu_c=1/2$, and $(d,k)=(2,4)$ is one of
+only two degenerate cases where $\nu_c$ coincides with its particle--hole
+mirror, so the weakly fragmented phase disappears and the model is
+\emph{strongly fragmented at every filling}. It also derives an exact
+active-bubble density $\propto\nu^x(1-\nu)^{\ell-x}$, exponential in
+$\ell$, and gives $\ell_{\min}=\ell_{\max}=4$ for the minimal two-particle
+bubble.
+\item \textbf{Morningstar, Khemani \& Huse (2020)} study the $n_i\in\{0,1,2\}$
+version; our model is exactly its hardcore invariant sub-sector, and it uses
+the same static Krylov-based definition of a frozen site.
+\item \textbf{Moudgalya \& Motrunich (2021)} supplies a reusable exact
+counting technique (canonical form $\to$ tiling $\to$ linear recursion).
+\item Three further papers (Han--Lake--Ro; Glorioso \textit{et al.};
+Zerba \textit{et al.}) treat the complementary dense/ergodic regime and do
+not bear on H1/H2. Sala \textit{et al.} (2020), flagged by three of them as
+the likely key reference, was checked and found \emph{not} to apply: it is a
+spin-1 model with a vacancy, and blocks of two like charges --- the interior
+of our only active pattern --- are frozen there.
+\end{itemize}
+
+\section{Work completed}
+
+\subsection{Chronology}
+\begin{center}\small
+\begin{tabular}{@{}llp{9.4cm}@{}}
+\toprule
+Date & Stage & Content \\
+\midrule
+12 Sep & H1 v1 & Pipeline built; definition A (cumulative) runs to
+$N=102400$; fits (constant vs.\ power-law correction). \\
+13 Sep & H1 v1 & \texttt{fitting\_range} run to $N=3\times10^5$ (11h29m);
+combined 31-point fits; H1b/H1c added; overshoot/commensuration checks. \\
+13 Sep & \textbf{redefinition} & ``Frozen'' redefined as a rolling window
+(definition B), $W=5L$, $M=10$, on researcher instruction. \\
+13 Sep & validation & Fixed-patience burn-in found to fail at large $N$
+(2/3 trials drifting at $N=10^5$); two fixes compared; self-scaling
+patience (``method 1'') locked in. \\
+13 Sep & H1 v2 & \texttt{production\_intermediate} $N=100$--$10^4$ (1h28m);
+re-run with doubled $W,M,c,n_{\min}$ (6h03m); settings comparison. \\
+14 Sep & H2 & Gap-length pipeline built; test (11s) and production
+($L=100$--$12800$, 14m22s) runs; analysis notebook. \\
+14 Sep & literature & Seven papers reconstructed; \texttt{LITERATURE.md}
+and \texttt{Notes/} written. \\
+14 Sep & \NEW & $f_B(W)$ scan; exact BFS static frozen fraction;
+small-$L$ like-for-like validation; forbidden-length argument. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Three inequivalent definitions of ``frozen''}
+Much of the project's subtlety lives here, and the three definitions are
+easy to conflate.
+
+\begin{center}\small
+\begin{tabular}{@{}lp{6.0cm}p{6.2cm}@{}}
+\toprule
+& \textbf{Definition} & \textbf{Status in the project} \\
+\midrule
+\textbf{Static} &
+Site takes the same value in \emph{every} configuration reachable by any
+move sequence. A property of the initial string only. &
+What \texttt{HYPOTHESES.md} H1 literally states. Never measured until this
+document; now measured exactly at $L\le60$ by BFS. \\
+\addlinespace
+\textbf{A (cumulative)} &
+Site has never flipped since $t=0$; run stopped once no \emph{new} site has
+flipped for $20L$ steps. &
+All 12--13 Sep production data ($N\le3\times10^5$). Superseded, archived
+(not deleted). \\
+\addlinespace
+\textbf{B (rolling)} &
+Site has not flipped during the trailing window $[t-W,t]$; sites may
+re-enter the frozen set. &
+Current production definition; all H1 v2 and all H2 data. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two structural facts follow immediately and are worth stating because they
+constrain everything:
+\begin{equation}
+f_{\text{static}} \;\le\; f_B(W') \;\le\; f_B(W)
+\quad\text{for } W\le W' ,
+\end{equation}
+pointwise on any trajectory, since a longer window gives a site more chances
+to disqualify itself; and definition A is definition B evaluated over the
+window $[0,T_A]$, so it is directly comparable once $T_A$ is known
+(measured below: $T_A\approx27$--$32\,L$).
+
+\textbf{$W$ is part of the observable, not the stopping rule.} Every H1 v2
+number is $f_B$ at one particular $W$. This was flagged when definition B
+was adopted but never quantified until Section~\ref{sec:wdep}.
+
+\subsection{Code and computational method}
+\begin{itemize}
+\item \texttt{src/dipole\_chain.py} --- the chain, with an $O(1)$
+active-site list (swap-with-last) and a local rescan of the ten windows
+that a flip can affect.
+\item \texttt{src/frozen\_fraction.py} --- definition A
+(\texttt{measure\_frozen\_fraction}), definition B
+(\texttt{measure\_frozen\_fraction\_rolling}), the shared self-scaling
+burn-in \texttt{\_self\_scaling\_burnin}, adaptive ensemble drivers.
+\item \texttt{src/burnin\_comparison.py} --- kept as the record of the
+method-1 vs.\ method-2 comparison.
+\item \texttt{src/gap\_length.py} --- H2 measurement; cyclic gap extraction
+from the site-level frozen mask.
+\item \NEW\ \texttt{src/w\_dependence.py}, \texttt{src/static\_frozen.py}
+--- the two new measurements, with matching scripts and configs.
+\item Ensembles use \texttt{numpy.random.SeedSequence} spawning with a
+per-estimator integer tag (1 rolling, 2 gap-length, 3 static, 4 $W$-scan),
+so every estimator has an independent, reproducible stream.
+\item Sampling is adaptive: draw batches until the relative standard error
+on the mean falls below a target (1\% in production) subject to a
+\texttt{min\_samples} floor and a cap.
+\end{itemize}
+
+\subsection{The burn-in problem, and why it matters}
+This was the most consequential methodological episode in the project. The
+original burn-in used a fixed patience of $20L$ steps. The measured
+growth-phase duration in units of $L$ grows with $N$, so the ratio of
+patience to growth time fell from ${\sim}5\times$ at $N=10^2$ to
+${\sim}0.4\times$ at $N=10^6$. A trend test across the $M$ measurement
+windows then found significant drift in 1/5 trials at $N=3\times10^4$ and
+2/3 at $N=10^5$ --- i.e.\ measurements were starting before the system had
+settled, exactly where the ratio argument predicted.
+
+The adopted fix (``method 1'') extends burn-in in $W$-length windows until
+$(t-G)\ge c\,G$, where $G$ is the step of the most recent first-time flip;
+this pins the patience/growth ratio at $c$ for every $N$. It gave 0/10
+significant trends at the same $N$, and agreed with an independent
+drift-gated scheme to within $\pm0.0004$ on identical trajectories. A
+zero-variance \texttt{NaN} bug in the trend test (which had been silently
+counted as ``not significant'') was fixed in the same pass.
+
+\subsection{What is completed, ongoing, and untested}
+\begin{description}[style=nextline,leftmargin=0.9cm]
+\item[Completed] H1 under definition A up to $N=3\times10^5$ with full
+model comparison; H1 under definition B up to $N=10^4$ at two settings; H2
+production $L=100$--$12800$ with shape/tail analysis; burn-in validation;
+estimator validation against exact enumeration; $f_B(W)$ scan; literature
+review.
+\item[Ongoing / configured but not run] \texttt{production\_large\_scale.yaml}
+($N=10^4$--$2\times10^4$, estimated 4.2--4.6\,h) is configured and was
+approved, but a scheduled launch was interrupted and it has never run. A
+reverted \texttt{production\_intermediate} configuration ($W=5L$,
+$n_{\min}=40$) was costed at ${\sim}2.2$\,h and also never run.
+\item[Proposed, never attempted] Extending the Classen-Howes Appendix~B.6
+recursion to an exact $\rho_F(\nu=1/2)$ and an exact multiplicity table; the
+paired $W=5L$ vs.\ $W=10L$ disentangling test on identical trajectories
+(now largely superseded by the $W$-scan); density--density correlation
+functions, which are the README's actual long-term target and have not been
+touched.
+\end{description}
+
+\section{Results}
+\label{sec:results}
+
+\subsection{H1: the frozen fraction is flat in $N$}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{\fig{fig_h1_overview.pdf}}
+\caption{All frozen-fraction data in the project. (a) Definition A
+(archived, 31 points, $N=100$--$3\times10^5$), definition B at $W=5L$
+(24 points) and at $W=10L$ (20 points); dashed lines are the
+inverse-variance weighted mean of each series. (b) The same data as
+residuals from each series' own constant fit. The two high points with
+large error bars near $N=200$--$400$ come from the \texttt{test.yaml} smoke
+run, whose target relative error was 10\% rather than 1\%. Error bars are
+$\pm1$ standard error of the ensemble mean throughout.}
+\label{fig:h1overview}
+\end{figure}
+
+Table~\ref{tab:h1fits} collects the model comparison, recomputed here from
+the raw \texttt{.npy} samples rather than copied from the log. The
+conventions are those already used in the project: weighted least squares
+with weights $1/\sigma^2$, $\chi^2=\sum((f-\text{model})/\sigma)^2$.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Model comparison for H1. ``$\alpha$'' in H1b is the decay exponent,
+so $\alpha>0$ means $f_N$ vanishes. Negative fitted $\alpha$ means the best
+fit is a slight \emph{increase} with $N$.}
+\label{tab:h1fits}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Dataset & Model & parameters & $\chi^2/\text{dof}$ & $\chi^2_\nu$\\
+\midrule
+\multirow{4}{*}{\parbox{4.3cm}{Definition A, 31 pts,\\ $N=100$--$3\times10^5$}}
+ & H1a constant & $f_\infty=0.35988\pm0.00015$ & $47.16/30$ & 1.572 \\
+ & H1a $+aN^{-\alpha}$ & $f_\infty=0.35990\pm0.00020$, $\alpha=1.28\pm0.78$ & $33.36/28$ & 1.192 \\
+ & H1b $cN^{-\alpha}$ & $\alpha=-0.00083\pm0.00050$ & $44.39/29$ & 1.531 \\
+ & H1c $c/\ln N$ & $c=4.218$ & $83289/30$ & \textbf{2776} \\
+\addlinespace
+\multirow{4}{*}{\parbox{4.3cm}{Definition B, $W=5L$,\\ 24 pts, $N=100$--$10^4$}}
+ & H1a constant & $f_\infty=0.36303\pm0.00065$ & $24.71/23$ & 1.074 \\
+ & H1a $+aN^{-\alpha}$ & $f_\infty=0.36430\pm0.00240$, $\alpha=0.63\pm0.63$ & $17.41/21$ & 0.829 \\
+ & H1b $cN^{-\alpha}$ & $\alpha=-0.00443\pm0.00180$ & $18.62/22$ & 0.846 \\
+ & H1c $c/\ln N$ & $c=2.886$ & $9655/23$ & \textbf{420} \\
+\addlinespace
+\multirow{2}{*}{\parbox{4.3cm}{Definition B, $W=10L$,\\ 20 pts}}
+ & H1a constant & $f_\infty=0.36043\pm0.00057$ & $28.11/19$ & 1.479 \\
+ & H1c $c/\ln N$ & $c=2.935$ & $10318/19$ & \textbf{543} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\textwidth]{\fig{fig_h1_models.pdf}}
+\caption{The four candidate forms fitted to the definition-A dataset (the
+widest range available, $N=100$ to $3\times10^5$). H1c ($c/\ln N$, dotted)
+fails catastrophically. H1b's best fit is indistinguishable from a constant
+because its fitted exponent is consistent with zero. Lower panel: residuals
+in units of $\sigma$.}
+\label{fig:h1models}
+\end{figure}
+
+\paragraph{Reading of Table~\ref{tab:h1fits}.}
+\begin{itemize}
+\item \textbf{H1c is excluded} under every definition, by three orders of
+magnitude in $\chi^2_\nu$. This is not a marginal call.
+\item \textbf{H1b is not excluded as a functional form}, but its fitted
+exponent is consistent with zero and slightly negative under all three
+datasets; the 95\% confidence interval from definition A is
+$\alpha\in[-0.0018,+0.00015]$. Taking the upper end at face value,
+$f_N$ could fall by at most ${\sim}0.03\%$ per decade of $N$. Over the
+four decades measured this is unobservable, and the fit is degenerate with
+a constant.
+\item \textbf{H1a fits.} For definition B at $W=5L$ the constant model has
+$\chi^2_\nu=1.07$ ($p=0.37$): the data are entirely consistent with a
+constant. For definition A, $\chi^2_\nu=1.57$ ($p=0.024$) --- a mild but
+real excess of scatter over the quoted error bars, discussed in
+Section~\ref{sec:problems}.
+\end{itemize}
+
+\subsection{The settings comparison, and why it is confounded}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.68\textwidth]{\fig{fig_h1_settings.pdf}}
+\caption{The 13 September re-run. Four parameters were changed
+simultaneously ($W$, $M$, $c_{\text{selfscale}}$, $n_{\min}$ all doubled).
+Lower panel: the shift is small, systematic and essentially
+$N$-independent.}
+\label{fig:h1settings}
+\end{figure}
+
+The doubled-settings re-run shifted $19$ of $20$ points downward by a
+weighted mean of $-0.00298\pm0.00088$ ($3.4\sigma$ pooled; no individual
+point exceeds $1.96\sigma$). The shift shows no dependence on system size
+(slope against $\ln N$: $-0.00013\pm0.00036$, $p=0.73$).
+
+Two of the four changed parameters independently predict a downward shift:
+doubling $W$ must lower $f_B$ by the monotonicity above, and doubling
+$c_{\text{selfscale}}$ lengthens burn-in. The other two ($M$, $n_{\min}$)
+only reduce variance. As designed, the experiment cannot separate these.
+The $W$-scan below settles it: the $W$ effect alone accounts for
+$0.003$--$0.004$, which is the entire observed shift, leaving nothing that
+requires a burn-in explanation.
+
+\subsection{$W$-dependence of definition B}
+\label{sec:wdep}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.66\textwidth]{\fig{fig_wdep.pdf}}
+\caption{\NEW\ $f_B$ as a function of the trailing-window length, with every
+$W$ read off the \emph{same} trajectories, so the $W$-dependence carries no
+realisation noise. The curve is flat to the fourth decimal from
+$W\approx20L$ onward at all three $L$. Dashed line: the definition-A
+weighted mean over $N\ge100$ for reference (a different estimator over a
+different $N$ range, shown only to set the scale).}
+\label{fig:wdep}
+\end{figure}
+
+\begin{table}[htbp]
+\centering\small
+\caption{\NEW\ $f_B(W)$ from a single span of $200L$ steps per realisation.
+Standard errors are $0.0057$--$0.0084$; because all columns come from the
+same trajectories, \emph{differences} between columns are far more precise
+than these errors suggest.}
+\label{tab:wdep}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+$W/L$ & 1 & 2 & 5 & 10 & 20 & 50 & 100 & 200\\
+\midrule
+$L=250$  & 0.4067 & 0.3649 & 0.3505 & 0.3483 & 0.3474 & 0.3474 & 0.3474 & 0.3474\\
+$L=1000$ & 0.4187 & 0.3848 & 0.3662 & 0.3626 & 0.3625 & 0.3625 & 0.3625 & 0.3625\\
+$L=4000$ & 0.4184 & 0.3828 & 0.3686 & 0.3653 & 0.3648 & 0.3647 & 0.3647 & 0.3647\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The production window $W=5L$ overshoots the plateau by $+0.0031$, $+0.0037$
+and $+0.0039$ at $L=250,1000,4000$; $W=10L$ by $+0.0009$, $+0.0001$,
+$+0.0006$. So the definitional freedom in H1 v2 costs at most about $1\%$
+of the value and does not grow with $L$.
+
+I also measured the definition-A estimator's effective observation window
+directly: $T_A=26.7L$ at $L=1000$ and $32.1L$ at $L=4000$ (30 realisations
+each). Both lie inside the saturated regime of $f_B(W)$, which explains why
+definitions A and B give consistent answers at matched $L$ despite being
+constructed differently.
+
+\subsection{Validation against exact enumeration}
+\label{sec:bfs}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{\fig{fig_static_bfs.pdf}}
+\caption{\NEW\ (a) The exact static frozen fraction from breadth-first
+enumeration of the Krylov sector, with and without fully-jammed
+configurations, against the dynamical estimator at saturated $W$.
+(b) The fraction of random half-filled configurations that are completely
+jammed (Krylov sector = one state), which is what forces the two curves in
+(a) apart at small $L$. (c) Median Krylov sector size against the total
+number of half-filled configurations.}
+\label{fig:bfs}
+\end{figure}
+
+\begin{table}[htbp]
+\centering\small
+\caption{\NEW\ Estimator validation. ``Exact, jammed removed'' is the
+sub-ensemble the dynamical estimator can actually sample, since burn-in
+reports jammed realisations as non-converged and discards them.}
+\label{tab:validation}
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+$L$ & exact $f_{\text{stat}}$ (all) & exact, jammed removed & dynamical $f_B(W{=}500L)$ & difference \\
+\midrule
+16 & $0.2863\pm0.0075$ & $0.2114\pm0.0060$ & $0.2132\pm0.0137$ & $+0.0019$ ($+0.1\sigma$)\\
+24 & $0.3023\pm0.0060$ & $0.2815\pm0.0055$ & $0.2694\pm0.0120$ & $-0.0121$ ($-0.9\sigma$)\\
+32 & $0.3086\pm0.0051$ & $0.3033\pm0.0050$ & $0.2981\pm0.0113$ & $-0.0052$ ($-0.4\sigma$)\\
+40 & $0.3274\pm0.0047$ & $0.3250\pm0.0046$ & $0.3438\pm0.0127$ & $+0.0188$ ($+1.4\sigma$)\\
+48 & $0.3347\pm0.0060$ & $0.3334\pm0.0059$ & $0.3171\pm0.0106$ & $-0.0163$ ($-1.3\sigma$)\\
+56 & $0.3286\pm0.0085$ & $0.3286\pm0.0085$ & $0.3225\pm0.0102$ & $-0.0061$ ($-0.5\sigma$)\\
+\midrule
+\multicolumn{4}{r}{$\chi^2=4.97$ on 6 points} & $\chi^2_\nu=0.83$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three things come out of this.
+
+\textbf{(i) The estimator is unbiased where it can be checked.} Against
+ground truth, on the sub-ensemble it can sample, the dynamical estimator
+shows no detectable bias ($\chi^2_\nu=0.83$). This is the check H1 has been
+asking for since it was written.
+
+\textbf{(ii) A real small-$L$ artifact is identified.} Fully jammed
+configurations --- where no window is active at all, so every site is
+trivially frozen --- make up $16.2\%$ of random half-filled configurations
+at $L=12$, $9.5\%$ at $L=16$, $0.75\%$ at $L=32$ and $0\%$ by $L=56$. The
+dynamical estimator discards them, which biases it low by up to $4.7\sigma$
+at $L=16$. At production sizes ($L\ge100$) every run reports
+\texttt{n\_discarded}$=0$, so the artifact is absent there --- but note that
+this is an extrapolation of an exponentially decaying jamming probability,
+not a direct check at production $L$.
+
+\textbf{(iii) $f_{\text{static}}$ is still rising at $L=60$.} It goes from
+$0.286$ at $L=16$ to $0.337\pm0.010$ at $L=60$, so the exact small-$L$
+numbers cannot be compared directly with the $0.36$ measured at
+$N\ge100$; they are consistent with approaching it but do not by themselves
+establish the asymptote.
+
+\paragraph{Strong fragmentation, measured.} Fitting the median sector size
+gives $(1.135)^L$ against $\binom{L}{L/2}\sim(1.969)^L$, so a typical
+Krylov sector occupies a fraction $\sim(0.576)^L$ of its symmetry sector.
+This is a direct measurement of strong Hilbert-space fragmentation in
+\emph{this} model, and it independently reproduces what the Classen-Howes
+thesis predicts for $(d,k)=(2,4)$ at every filling.
+
+\subsection{H2: active-region length distribution}
+
+\begin{table}[htbp]
+\centering\small
+\caption{H2 production run
+(\texttt{gap\_length\_gap\_length\_production\_20260914T045549Z}), $W=5L$,
+$c_{\text{selfscale}}=5$, one post-burn-in snapshot per realisation,
+zero-length gaps excluded from $P_L(\ell)$. $\lambda$ and $\alpha$ are
+full-range OLS fits of $\ln P$ against $\ell$ and against $\ln\ell$.}
+\label{tab:h2}
+\begin{tabular}{@{}rrrrrrrrr@{}}
+\toprule
+$L$ & realisations & pooled gaps & $\langle\ell\rangle$ & $P(\ell{=}0)$
+& $\lambda$ & $R^2_{\exp}$ & $\alpha$ & $R^2_{\text{pow}}$\\
+\midrule
+100   & 1400 & 5643  & 16.115 & 0.8850 & 12.95 & 0.952 & 2.42 & 0.879\\
+200   & 720  & 5825  & 15.730 & 0.8888 & 13.26 & 0.917 & 2.49 & 0.872\\
+400   & 320  & 5261  & 15.529 & 0.8864 & 13.27 & 0.939 & 2.54 & 0.897\\
+800   & 160  & 5225  & 15.633 & 0.8872 & 13.22 & 0.943 & 2.43 & 0.895\\
+1600  & 100  & 6544  & 15.554 & 0.8876 & 13.76 & 0.910 & 2.51 & 0.892\\
+3200  & 60   & 7793  & 15.665 & 0.8886 & 13.08 & 0.966 & 2.60 & 0.904\\
+6400  & 40   & 10416 & 15.636 & 0.8882 & 12.89 & 0.952 & 2.72 & 0.889\\
+12800 & 20   & 10530 & 15.407 & 0.8877 & 14.15 & 0.915 & 2.72 & 0.901\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{\fig{fig_h2_pmf.pdf}}
+\caption{The measured length distribution on the two diagnostic axes. (a)
+Semi-log: the data are straight over more than two decades in $P$, which is
+the exponential signature. (b) The same data log--log, where a power law
+would be straight; it is visibly curved. The flat floor near
+$P\sim10^{-4}$ in both panels is the single-count resolution limit
+($1/n_{\text{pooled}}$), not physics.}
+\label{fig:h2pmf}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{\fig{fig_h2_collapse.pdf}}
+\caption{Rescaled distributions for all eight $L$. The collapse is the
+H2a signature: the shape is $L$-independent, and close to the memoryless
+reference $e^{-x}$.}
+\label{fig:h2collapse}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{\fig{fig_h2_vs_L.pdf}}
+\caption{$L$-dependence of the summary statistics. All three are flat over
+two decades in $L$. In (c) the power-law exponent is scaled by 4 to share
+the axis.}
+\label{fig:h2vsL}
+\end{figure}
+
+\paragraph{What the numbers say.} The exponential form is preferred over a
+power law at \emph{every} $L$ when both are fitted over the full range
+($R^2_{\exp}=0.910$--$0.966$ against $R^2_{\text{pow}}=0.872$--$0.906$).
+The decay length $\lambda\approx12.9$--$14.2$ sites shows no systematic
+trend with $L$ over two decades, as do
+$\langle\ell\rangle=15.4$--$16.1$ and the zero-gap rate
+$0.885$--$0.889$.
+
+A caveat the project already recorded: if the fit is restricted to the tail
+($\ell\ge15$) the two forms become nearly indistinguishable
+($R^2_{\exp}=0.876$--$0.954$ vs.\ $R^2_{\text{pow}}=0.897$--$0.951$, with
+the power law marginally ahead at five of eight $L$). The full-range
+comparison is the more discriminating one, because it includes the region
+around the peak where a power law would have to diverge and does not; but
+it is worth being explicit that the \emph{far tail alone} does not by itself
+settle the question, and no likelihood-based model selection (AIC, or a
+likelihood-ratio test on the untruncated samples) has been done.
+
+\subsection{Consistency checks}
+Four independent checks were run while preparing this document; all pass.
+
+\begin{enumerate}
+\item \textbf{The dynamics conserves what it claims to.} \NEW\ Over
+$1.44\times10^5$ steps spanning $L=40,100,400$ and 12 seeds each:
+magnetisation $\sum_i s_i$ was conserved exactly (0 failures), the dipole
+moment was conserved exactly modulo $L$ (0 failures), and the incremental
+$O(1)$ active-site list agreed with a full brute-force rescan at every one
+of 720 spot checks. The unwrapped dipole was observed to take only the
+values $\{0,-L\}$ relative to its initial value, i.e.\ it is conserved
+exactly except for the expected jump of $L$ when a move wraps the periodic
+boundary. This had never been tested in the repository.
+\item \textbf{Cross-pipeline.} The H2 gap-length run records the snapshot
+frozen fraction as a by-product, computed by different code from the H1
+estimator (single window rather than $M$ averaged windows, separate seed
+stream). At the five overlapping $L$ the two agree within
+$-1.1\sigma$ to $+1.0\sigma$.
+\item \textbf{Exact identity.} Since every frozen site opens exactly one
+gap on the ring, the mean over \emph{all} gaps (zeros included) must equal
+$(1-f)/f$. Recomputing from the stored counts reproduces this to a ratio of
+$1.0000$ at every $L$, confirming the gap extraction and the bookkeeping of
+discarded zeros are internally consistent.
+\item \textbf{Estimator vs.\ ground truth.} Table~\ref{tab:validation}.
+\end{enumerate}
+
+\subsection{The forbidden lengths: an exact argument}
+\label{sec:forbidden}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\textwidth]{\fig{fig_h2_forbidden.pdf}}
+\caption{Pooled counts at small $\ell$. Shaded columns have \emph{exactly
+zero} counts at every $L$, across ${\sim}57{,}000$ pooled gaps. $\ell=0$ is
+excluded by construction; $\ell=1,2,3,5$ are absent dynamically.}
+\label{fig:forbidden}
+\end{figure}
+
+Let $S\subseteq\mathbb{Z}_L$ be the set of window positions that fired at
+least once during the measurement window, and $F=\bigcup_{p\in S}\{p,p{+}1,
+p{+}2,p{+}3\}$ the set of sites recorded as active. A maximal run of $F$
+whose fired positions run from $p_1$ to $p_k$ (consecutive gaps $\le4$, so
+the 4-blocks chain) covers $[p_1,p_k+3]$, hence has length
+\begin{equation}
+\ell=p_k-p_1+4 .
+\end{equation}
+So $\ell\ge4$ always, excluding $\ell\in\{1,2,3\}$, and $\ell=5$ requires
+$p_k-p_1=1$: exactly the two positions $p$ and $p+1$ fired, and nothing else
+in that component.
+
+\begin{lemma}[verified exhaustively]
+\label{lem:offset1}
+For every configuration of five consecutive sites:
+(i) window positions $p$ and $p+1$ are never simultaneously active;
+(ii) firing $p$ leaves $p+1$ inactive; (iii) firing $p+1$ leaves $p$
+inactive.
+\end{lemma}
+\begin{proof}[Verification]
+Direct enumeration of all $2^5=32$ configurations gives $0$ violations of
+each of (i), (ii), (iii). For contrast, offsets $2,3,4$ admit $2,2,4$
+simultaneously-active configurations respectively, which is what makes
+$\ell=6,7,8$ reachable.
+\end{proof}
+
+\begin{proposition}
+\label{prop:five}
+Under this dynamics, a maximal active run of length exactly $5$ cannot
+occur, while $\ell=4$ and every $\ell\ge6$ can.
+\end{proposition}
+\begin{proof}
+Suppose a component of length $5$ occurred; then only positions $p$ and
+$p+1$ fired in it, both at least once, and no other position within
+distance $4$ fired (any such firing would lengthen the component). Note
+that window $p+1$ spans sites $[p{+}1,p{+}4]$, all inside the component,
+and the only positions touching those sites are $p{-}2,p{-}1,p,p{+}1$; the
+first two are excluded by the same argument, so only $p$ and $p+1$ can
+alter the activity of $p+1$. Consider the first firing among $\{p,p{+}1\}$,
+say $p$ (the other case is symmetric using (iii)). At that instant $p$ is
+active, so by (i) $p+1$ is not. After the firing, by (ii), $p+1$ is still
+inactive. Further firings of $p$ only toggle its window between $A$ and $B$,
+and (ii) applies to each; $p+1$ therefore never becomes active and never
+fires, contradicting the assumption. Lengths $4$ and $\ge6$ are realisable
+because a single position, or positions at offset $2,3,4,\dots$, can fire.
+\end{proof}
+
+This reproduces the observed support exactly: $\{4\}\cup\{6,7,8,\dots\}$. It
+is consistent with, and sharper than, the thesis result
+$\ell_{\min}=\ell_{\max}=4$ for the minimal two-particle bubble, which
+explains $\ell\le3$ and the prominence of $\ell=4$ but does not address
+$\ell=5$.
+
+\medskip
+\noindent\fbox{\parbox{0.97\textwidth}{\small
+\textbf{Status of Proposition~\ref{prop:five}.} The exhaustive verification
+of Lemma~\ref{lem:offset1} is machine-checked and reproducible. The
+combinatorial argument built on it was written while preparing this
+document and \emph{has not been reviewed by the researcher}. Per the
+project's own rule that theoretical arguments are confirmed before being
+relied on, it should be checked before being cited or built upon.}}
+
+\section{Claims, graded by evidence}
+
+\subsection*{Established --- directly supported by data in this repository}
+\begin{itemize}
+\item \Est\ \textbf{Logarithmic decay (H1c) is excluded.}
+$\chi^2_\nu=2776$ (definition A), $420$ and $543$ (definition B).
+\emph{Evidence:} Table~\ref{tab:h1fits}, Fig.~\ref{fig:h1models}.
+\item \Est\ \textbf{Any power-law decay of $f_N$ is bounded to
+$\alpha<1.5\times10^{-4}$ at 95\% confidence over $N=10^2$--$3\times10^5$.}
+\emph{Evidence:} H1b fit, definition A.
+\item \Est\ \textbf{The frozen fraction is $0.359$--$0.363$ depending on
+definition, with a definitional spread of ${\sim}0.004$.}
+\emph{Evidence:} three independent weighted means; the ordering
+$f_A<f_B(10L)<f_B(5L)$ obeys the required monotonicity.
+\item \Est\ \textbf{$f_B(W)$ saturates for $W\gtrsim20L$;} the production
+$W=5L$ overshoots by $0.003$--$0.004$.
+\emph{Evidence:} Table~\ref{tab:wdep}, Fig.~\ref{fig:wdep}.
+\item \Est\ \textbf{The dynamical estimator reproduces exact static
+reachability} on the sub-ensemble it can sample, $\chi^2_\nu=0.83$ over six
+$L$. \emph{Evidence:} Table~\ref{tab:validation}.
+\item \Est\ \textbf{The model is strongly fragmented:} sector/symmetry-sector
+$\sim(0.576)^L$. \emph{Evidence:} Fig.~\ref{fig:bfs}(c).
+\item \Est\ \textbf{Active-region lengths $1,2,3,5$ cannot occur.}
+\emph{Evidence:} zero counts in ${\sim}57{,}000$ pooled gaps at eight $L$,
+plus the exhaustive Lemma~\ref{lem:offset1} (the argument assembling them,
+Proposition~\ref{prop:five}, is pending review).
+\item \Est\ \textbf{An exponential describes $P_L(\ell)$ better than a power
+law over the full range, at every $L$.} \emph{Evidence:}
+Table~\ref{tab:h2}, Fig.~\ref{fig:h2pmf}.
+\end{itemize}
+
+\subsection*{Strong observations --- robust but needing more verification}
+\begin{itemize}
+\item \Obs\ \textbf{$f_N$ saturates to a nonzero constant (H1a).} Flat over
+more than three decades, under two independent definitions, with an
+exclusion of the alternatives. What keeps this from ``established'' is that
+no measurement of a decay slower than $\alpha\approx10^{-4}$ is possible
+with this range, and the underlying quantity is only \emph{known} to be
+definition-independent up to the $0.004$ spread.
+\item \Obs\ \textbf{The active-region length distribution is $L$-independent
+in shape (H2a over H2b).} Collapse in Fig.~\ref{fig:h2collapse}; $\lambda$,
+$\langle\ell\rangle$ and $P(\ell{=}0)$ flat over two decades. Weakened by
+the fact that the far tail alone does not discriminate, and the largest $L$
+rests on only 20 realisations.
+\item \Obs\ \textbf{The settings shift is entirely a $W$ effect.} The
+$W$-scan accounts for $0.003$--$0.004$ of the observed $0.00298$; nothing is
+left for a burn-in explanation.
+\end{itemize}
+
+\subsection*{Conjectures / interpretations not established}
+\begin{itemize}
+\item \Conj\ \textbf{$f_\infty\simeq0.36$ is the thermodynamic-limit static
+frozen fraction.} The exact calculation only reaches $L=60$, where
+$f_{\text{static}}=0.337\pm0.010$ and still rising; the identification of
+the measured plateau with the $L\to\infty$ static value is an extrapolation.
+\item \Conj\ \textbf{Because active regions are exponentially distributed
+and $L$-independent, global transport is arrested with no anomalous
+hydrodynamic tail.} This is the README's motivating inference, and the data
+support the premise --- but the conclusion concerns density--density
+correlation functions, which have never been computed in this project.
+\item \Conj\ \textbf{The measured exponential is the thesis's
+$\nu^x(1-\nu)^{\ell-x}$ law.} Plausible and the forms match, but the
+thesis's prediction has never been evaluated numerically at $\nu=1/2$ and
+compared point-by-point against our $P_L(\ell)$.
+\item \Conj\ \textbf{$\ell=5$ is forbidden at every particle number $x$.}
+Proposition~\ref{prop:five} proves it for the dynamical active runs we
+measure; the literature note records a separate hand-argument for $x=3$
+only, which was never verified against our data.
+\end{itemize}
+
+\subsection*{Claims with currently insufficient evidence}
+\begin{itemize}
+\item Any statement about $N>10^4$ under the current definition. The largest
+definition-B run is $N=10^4$; everything beyond that is definition A.
+\item Any statement about densities other than $1/2$. Nothing else has been
+run, yet the literature's whole framework is organised around filling.
+\item The precise value ``$0.36\pm0.009$'' recorded in
+\texttt{HYPOTHESES.md}. The $\pm0.009$ has no stated derivation; the
+inverse-variance weighted errors are $\pm0.0007$, and the definitional
+spread is $\pm0.004$. The quoted uncertainty appears to be a conservative
+eyeball rather than a computed quantity.
+\end{itemize}
+
+\section{The current scientific picture}
+
+\paragraph{Question.} Does a dipole-conserving hardcore chain at half
+filling freeze a finite fraction of its sites in the thermodynamic limit,
+and are the surviving active regions microscopic or scale-free?
+
+\paragraph{Approach.} Direct stochastic simulation of the constrained
+dynamics, with the frozen set identified by a trailing-window criterion
+after a self-scaling burn-in; ensembles sized adaptively to a 1\% relative
+error; and, at small $L$ where it is possible, exact enumeration of the
+reachable configuration space as ground truth.
+
+\paragraph{Results.} $f_N$ is flat at $0.359$--$0.363$ from $N=10^2$ to
+$3\times10^5$. Logarithmic decay is excluded; power-law decay is bounded
+below $10^{-4}$ in exponent. The estimator is validated against exact
+enumeration. Active-region lengths are exponentially distributed with
+$\lambda\approx13$ sites, $L$-independent, supported on
+$\{4\}\cup\{6,7,\dots\}$.
+
+\paragraph{Observation.} Two independent structural facts coexist: a finite
+frozen backbone occupying ${\sim}36\%$ of the chain, and active clusters
+whose size distribution has a fixed microscopic scale that does not grow
+with the system. Exact enumeration shows the accessible configuration space
+is an exponentially small fraction of the symmetry sector.
+
+\paragraph{Interpretation (labelled as such).} The chain is strongly
+Hilbert-space fragmented at half filling. Because the active regions have a
+finite correlation length, the system does not possess the rare large
+clusters that would be needed to carry long-range relaxation through a
+frozen background. In the README's framing this is the ``exponential''
+branch: transport is arrested, and no anomalous tail in the global
+density--density correlator is expected \emph{from this mechanism}.
+
+\paragraph{Claim.} H1a (saturation) is supported and its competitors are
+excluded within the measured range; H2a (an $L$-independent, memoryless
+active-region distribution) is supported over H2b. The forbidden-length
+structure is a consequence of the 4-site move geometry rather than a
+statistical accident.
+
+\section{Contradictions, weaknesses and problems}
+\label{sec:problems}
+
+This section is deliberately unflattering.
+
+\begin{enumerate}
+\item \textbf{\texttt{HYPOTHESES.md} H1 still defines the wrong
+quantity.} Its order-parameter paragraph defines $f_N$ statically
+(``no sequence of allowed moves can ever change its occupation \dots a
+property of the initial string alone, not of a stochastic trajectory or run
+time''), but every production number in the project is a dynamical proxy
+with an explicit run-time parameter. Section~\ref{sec:bfs} now shows the two
+agree, but the document has never been corrected, and a reader taking H1 at
+face value would misunderstand what was measured. The \Unc\ block in H1 is
+also now out of date.
+
+\item \textbf{The ``$0.36\pm0.009$'' in \texttt{HYPOTHESES.md} is not a
+computed error bar.} Nothing in the repository derives $\pm0.009$. The
+statistical error is $\pm0.0007$ and the definitional spread $\pm0.004$.
+Carrying an unexplained uncertainty into a recorded claim is a hazard if it
+is later quoted.
+
+\item \textbf{The settings comparison was a confounded experiment.} Four
+parameters were changed simultaneously; two of them independently predict
+the observed sign. It is resolved only retrospectively, by the $W$-scan.
+A one-at-a-time design was proposed at the time and not run.
+
+\item \textbf{Heterogeneous precision is silently pooled.} The 24-point
+``definition B'' dataset mixes \texttt{test.yaml} points (10\% target
+relative error) with production points (1\%). The two visible outliers at
+$N=200,400$ in Fig.~\ref{fig:h1overview} are exactly those. Inverse-variance
+weighting limits the damage, but the exploratory notebook's headline
+``weighted mean over 24 points'' is not a homogeneous dataset.
+
+\item \textbf{Definition A's constant fit is formally a poor fit.}
+$\chi^2_\nu=1.57$ on 30 dof is $p=0.024$. Either the error bars are
+underestimated --- plausible, since each point's error is a
+realisation-to-realisation standard error that ignores any systematic
+residual burn-in bias --- or there is real residual structure. The project
+investigated the latter (commensuration, second correction term,
+log-periodicity) and found nothing statistically supported, which leaves
+mildly underestimated uncertainties as the most likely explanation. That
+possibility has never been tested directly.
+
+\item \textbf{Sampling at the largest sizes is thin.} At $L=12800$, H2 rests
+on 20 realisations; the H1 $W=5L$ run has $n=20$ at eleven of twenty
+$N$-values. Adaptive sampling stops at a target \emph{relative} error of the
+mean, which at large $L$ is met almost immediately because
+realisation-to-realisation variance shrinks --- so the largest, most
+physically interesting sizes get the \emph{fewest} samples. This is a
+structural feature of the stopping rule worth reconsidering.
+
+\item \textbf{A real discard bias exists and is only extrapolated away at
+production sizes.} Jammed configurations are discarded. This is a
+$4.7\sigma$ effect at $L=16$. It is believed negligible at $L\ge100$
+because \texttt{n\_discarded}$=0$ in every production run and the jamming
+probability decays exponentially --- but ``zero discards observed'' with
+$n\le1400$ only bounds the jammed fraction at ${\lesssim}10^{-3}$, it does
+not measure it.
+
+\item \textbf{The $W\to\infty$ plateau is a plateau over one decade only.}
+Flatness of $f_B(W)$ for $W\in[20L,200L]$ does not prove convergence to the
+static value; a site with a flip timescale $\gg200L$ would be invisible. The
+small-$L$ agreement with exact enumeration is reassuring, but at $L\le56$,
+where absolute timescales are tiny.
+
+\item \textbf{The tail-only fit does not support the headline H2 claim, and
+this asymmetry is under-emphasised.} Restricted to $\ell\ge15$, the power
+law is marginally \emph{better} at five of eight $L$. The full-range
+comparison is more discriminating for good reasons, but the honest
+statement is ``exponential over the full range; the far tail alone is
+inconclusive'', not ``exponential, confirmed''. No AIC or likelihood-ratio
+test has been performed on the raw samples.
+
+\item \textbf{The archived analysis notebooks are dead code.} The three
+\texttt{h1\_fit\_frozen\_fraction*.ipynb} notebooks are pinned to paths that
+have moved to \texttt{data/archive/}; they cannot be re-executed. The
+definition-A fits quoted throughout this document were therefore recomputed
+from the raw \texttt{.npy} files rather than trusted from notebook output.
+(They reproduce the logged values.)
+
+\item \textbf{Stale statements in the research log.} The entry of 13 Sep
+states that \texttt{production\_large\_scale.yaml} is ``scheduled to launch
+automatically at 2026-09-14 00:00''. It never ran, and the config has since
+been retargeted twice. Log entries are a historical record, so this is not
+wrong in itself, but nothing in the log records the interruption.
+
+\item \textbf{The core dynamics had never been tested, and there is still
+no regression test.} Every number in the project flows through one
+\texttt{DipoleChain} class, whose conservation laws were asserted only in
+its docstring. I ran that check ad hoc while preparing this document and it
+passes cleanly (Section~\ref{sec:results}, check~1), and the independently
+written BFS code agrees on the move rule --- so this is no longer an open
+risk. But the check exists only in this document's history: there is no test
+file in the repository, so nothing will catch a future regression.
+
+\item \textbf{The project's stated physical target has not been approached.}
+The README's actual goal is the density--density correlation function and
+its possible anomalous tail. Two structural inputs have now been measured,
+but no correlation function, no transport coefficient and no dynamical
+exponent has been computed.
+\end{enumerate}
+
+\section{Highest-value next steps, in priority order}
+
+\begin{enumerate}
+\item \textbf{Commit the conservation-law check as a regression test.}
+(Minutes.) The check described in Section~\ref{sec:results} passes, but it
+lives nowhere in the repository. Turning it into a test file --- assert
+$\sum_i s_i$ and $\sum_i i\,n_i \bmod L$ invariant under \texttt{step()},
+and the incremental active-list update equal to a full rescan --- costs
+almost nothing and protects every number the project produces. Highest
+value-per-cost in the list.
+
+\item \textbf{Run \texttt{production\_large\_scale.yaml}.} (4--5\,h,
+already costed and approved.) It is the only planned measurement that
+extends definition B beyond $N=10^4$, and the H1 claim currently has a
+one-decade gap between where the current definition stops ($10^4$) and where
+the superseded one reached ($3\times10^5$).
+
+\item \textbf{Re-weight the sampling toward large $L$.} Replace, or
+supplement, the relative-SE stopping rule with a minimum sample count that
+\emph{grows} with $L$. At present the largest systems are the least
+sampled, which is backwards for a finite-size study.
+
+\item \textbf{Do proper model selection on H2 with likelihoods.} Fit the
+raw $\ell$ samples by maximum likelihood to a geometric/exponential and to
+a discrete power law (with the $\ell\in\{4\}\cup\{6,\dots\}$ support handled
+explicitly), and compare with AIC and a likelihood-ratio test. The current
+$R^2$-on-binned-counts comparison is weaker than the data deserve and is
+sensitive to the binning and to the single-count floor.
+
+\item \textbf{Evaluate the thesis's exact prediction at $\nu=1/2$ and
+overlay it on Fig.~\ref{fig:h2pmf}.} The formula
+$\propto\nu^x(1-\nu)^{\ell-x}$ plus $P_b(\nu)$ is closed-form; computing it
+and plotting it against our measured $P_L(\ell)$ converts a qualitative
+``consistent with the literature'' into a quantitative test with no new
+simulation.
+
+\item \textbf{Push the exact enumeration further with symmetry reduction.}
+$L=60$ took 6.7 minutes; using translation symmetry and canonical forms
+should reach $L\approx80$--$100$ and would let $f_{\text{static}}(L)$ be
+extrapolated against the dynamical plateau directly rather than
+qualitatively.
+
+\item \textbf{Measure the density--density correlation function.} This is
+the README's actual target and the only way to convert the structural
+results into the physical claim the project wants to make.
+
+\item \textbf{Vary the density.} Everything is at $\nu=1/2$. The literature
+frames this model entirely in terms of filling, and the thesis's claim that
+$(d,k)=(2,4)$ is strongly fragmented \emph{at every} filling is directly
+testable with the existing pipeline by changing one config value.
+\end{enumerate}
+
+\section{Questions I could not resolve from the project}
+
+\begin{enumerate}
+\item \textbf{Which frozen-fraction number is the one you want to quote?}
+There are now three defensible candidates: $0.35988\pm0.00015$
+(definition A, widest $N$ range), $0.36303\pm0.00065$ (definition B at the
+production $W=5L$), and the $W$-saturated plateau $\approx0.3647$ at
+$L=4000$. They differ by more than their statistical errors. I have not
+picked one as authoritative anywhere in this document.
+
+\item \textbf{Where does the $\pm0.009$ in \texttt{HYPOTHESES.md} come
+from?} I could not reconstruct it from any file. If it was meant as a
+conservative band covering the definitional spread, it should say so; if it
+was meant as an error bar, it disagrees with the computed one by an order of
+magnitude.
+
+\item \textbf{Should ``frozen'' ultimately mean static or rolling?} They now
+agree numerically, so this is a presentational choice --- but it changes what
+H1 claims. The static definition connects directly to the
+Hilbert-space-fragmentation literature; the rolling one is what is actually
+measurable at large $L$.
+
+\item \textbf{Is discarding zero-length gaps the right convention for the
+physics you care about?} It removes ${\sim}89\%$ of all gaps and breaks the
+$\langle\ell\rangle=(1-f)/f$ identity. For a correlation-function
+calculation the full distribution including zeros is what enters. Was the
+intent to characterise the shape of nonzero clusters only?
+
+\item \textbf{Is the README's ``aperiodic'' a typo for ``a periodic''?} The
+code is unambiguously periodic, and everything in the project assumes PBC,
+so I have read it as a typo --- but if an aperiodic or quasiperiodic variant
+was ever intended, none of the current work addresses it.
+
+\item \textbf{Do you want Proposition~\ref{prop:five} checked
+independently before it is used?} Per your own rule I have flagged it rather
+than treating it as established.
+\end{enumerate}
+
+\section*{Your suggestions / things you should consider}
+\addcontentsline{toc}{section}{Your suggestions / things I should consider}
+
+\emph{These are suggestions, not results.}
+
+\begin{itemize}
+\item \textbf{Measure the distribution of frozen-run lengths too, not just
+active-run lengths.} You currently characterise the gaps but not the
+backbone. The frozen runs are the complementary structure, they are trivially
+available from the same snapshot (the code already builds the mask), and
+their distribution is what determines whether the frozen backbone is
+percolating-like or fragmented. Given $P(\ell=0)\approx0.888$ the frozen
+runs are clearly long, and nobody has looked at them.
+
+\item \textbf{The zero-gap rate is suspiciously constant.} $0.8850$ to
+$0.8888$ across two decades of $L$, i.e.\ variation in the fourth decimal.
+Combined with $\langle\ell\rangle$ and $\lambda$ also being flat, this
+smells like an exactly computable constant of the model rather than an
+empirical number. It may be derivable from the same window-geometry
+argument as Proposition~\ref{prop:five}.
+
+\item \textbf{Exploit the ``all $W$ from one trajectory'' trick more
+widely.} It converted a noisy 4-parameter comparison into a clean paired
+measurement at a fraction of the cost. The same pattern --- record per-site
+last-flip times once, derive many observables --- would give you the
+autocorrelation function $C(t)$ and the distribution of single-site flip
+waiting times essentially for free from runs you are already doing. The
+waiting-time distribution in particular would tell you whether the
+$W$-plateau is genuine or hiding a slow tail.
+
+\item \textbf{Consider reporting $1-f$ rather than $f$.} The active
+fraction $0.64$ is the quantity that enters transport arguments, and error
+propagation is more transparent there.
+
+\item \textbf{A theoretical connection worth checking.} Your active regions
+are bounded by frozen sites and have a minimum size of 4 with $5$ forbidden.
+That is the signature of a constrained-tiling problem. The Moudgalya--Motrunich
+technique in your notes (canonical form $\to$ tiling $\to$ transfer matrix)
+would plausibly yield $P(\ell)$ in closed form for this model, including the
+exact $\lambda$, and you already have the numerical answer to check it
+against. This looks like the single most tractable piece of analytics
+available to you right now.
+
+\item \textbf{Be careful before abandoning the model.} The README says you
+would move on if the distribution is exponential. It is --- but the
+exponential decay length $\lambda\approx13$ sites is large compared to the
+4-site move, and $89\%$ of frozen sites are adjacent to another. Before
+concluding the model is uninteresting for hydrodynamics, it is worth
+checking whether the \emph{frozen} structure has long-range correlations
+even though the active clusters do not.
+
+\item \textbf{Housekeeping.} The archived notebooks cannot be re-executed;
+either repoint them at \texttt{data/archive/} or add a line to their README
+stating they are frozen artifacts. And the two configured-but-never-run
+jobs should either be run or removed from the configs directory, since a
+config that has never executed is a trap for a future reader.
+\end{itemize}
+
+\vfill
+\noindent\rule{\textwidth}{0.4pt}\\
+{\footnotesize
+Figures regenerable via
+\texttt{python numerics/scripts/make\_progress\_figures.py}.
+Numerical values dumped to
+\texttt{numerics/data/processed/progress\_numbers.json}.
+New measurements made for this document live under
+\texttt{numerics/data/raw/} in the
+\texttt{static\_frozen\_*} and \texttt{w\_dependence\_*} run directories,
+and are logged in \texttt{RESEARCH\_LOG.md} (14 September entries).
+Document source: \texttt{progress.tex}.}
+
+\end{document}

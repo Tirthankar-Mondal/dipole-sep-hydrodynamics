@@ -1293,3 +1293,158 @@ the 1,2,3,5-forbidden pattern -- proposed there, not attempted.
 
 **Git commit:** uncommitted (LITERATURE.md, numerics/theory/Notes/, and
 this entry are unstaged working-tree changes on top of 71a1114)
+
+---
+
+## 2026-09-14 — W-dependence of definition B: f_B(W) saturates for W >~ 20L
+
+**Question:** Every H1 production number is f_B at one fixed W (5L or
+10L), and W enters the *definition* of the observable, so f_B is
+non-increasing in W by construction. How much of the quoted ~0.36 is an
+artifact of that choice, and does f_B(W) still fall at larger W?
+
+**Hypothesis:** Unknown beforehand. If f_B kept falling with W without
+saturating, the quoted plateau value would be W-dependent and the H1
+claim would need restating; if it saturates, the choice of W=5L costs a
+bounded, quantifiable offset.
+
+**Method:** New `numerics/src/w_dependence.py` +
+`numerics/scripts/run_w_dependence.py` + `numerics/config/w_dependence.yaml`.
+Standard production burn-in (self-scaling patience, c_selfscale=5), then
+one span of W_max = 200L steps recording each site's last-flip time, so
+every W in {1,2,5,10,20,50,100,200}xL is read off the *same* trajectory
+-- all W values are perfectly paired and differences across W carry no
+realization noise. L = 250 (n=60), 1000 (n=40), 4000 (n=20).
+Master seed 20260914. Runtime 3m57s (3 workers).
+
+**Result:** f_B(W) falls steeply from W=L to W~5L and is then flat to
+within the fourth decimal from W~20L out to W=200L at every L:
+- L=250:  0.4067, 0.3649, 0.3505, 0.3483, 0.3474, 0.3474, 0.3474, 0.3474
+- L=1000: 0.4187, 0.3848, 0.3662, 0.3626, 0.3625, 0.3625, 0.3625, 0.3625
+- L=4000: 0.4184, 0.3828, 0.3686, 0.3653, 0.3648, 0.3647, 0.3647, 0.3647
+  (for W/L = 1, 2, 5, 10, 20, 50, 100, 200; SEs 0.0057-0.0084)
+The production choice W=5L therefore sits above the plateau by
++0.0031 (L=250), +0.0037 (L=1000), +0.0039 (L=4000); W=10L by
++0.0009, +0.0001, +0.0006 respectively.
+Raw data: `numerics/data/raw/w_dependence_w_dependence_20260914T064113Z/`.
+
+Separately measured (n=30 per L, seeds tagged 7) the definition-A
+estimator's effective observation window: T_A = 26.7L at L=1000 and
+32.1L at L=4000, i.e. definition A also observes in the saturated
+regime, which explains why definitions A and B agree at matched L.
+
+**Interpretation:** [left blank]
+
+**Next question:** The plateau is flat over one decade in W (20L-200L)
+but that does not prove the W -> infinity limit is reached; a site with
+a flip timescale >> 200L would be missed. The small-L comparison against
+exact enumeration (next entry) tests exactly that.
+
+**Git commit:** uncommitted (new src/script/config and this entry are
+unstaged working-tree changes on top of 03b6349)
+
+---
+
+## 2026-09-14 — Exact static frozen fraction by BFS: closes H1's [UNCERTAIN] flag
+
+**Question:** H1 has carried a flagged [UNCERTAIN] assumption since it
+was first stated: that the dynamical estimators are a valid stand-in for
+*static* reachability (a site frozen iff it takes the same value in every
+configuration reachable by any sequence of moves). Never checked against
+actual move enumeration. Does the estimator reproduce ground truth?
+
+**Hypothesis:** Expected agreement, since the burn-in/patience machinery
+was designed for it, but with unknown finite-size behaviour at the small
+L where enumeration is possible.
+
+**Method:** New `numerics/src/static_frozen.py` +
+`numerics/scripts/run_static_frozen.py` + `numerics/config/static_frozen.yaml`:
+BFS over the full Krylov sector from random half-filled initial
+configurations (bitmask encoding, hash-set membership), frozen sites =
+those taking the same value in every reachable configuration. L = 12 to
+60 in steps of 4, n = 2000 tapering to 250 at L=60, cap 5e6 states per
+sector, master seed 20260914, 9 workers. Runtime 6m43s. Then
+`numerics/config/w_dependence_small.yaml` ran the *dynamical* estimator
+at the same L (16-56, W up to 500L, n=300-400, runtime 1m26s) for a
+like-for-like comparison.
+
+**Result:**
+- Exact f_static rises with L: 0.3078(87) at L=12, 0.2863(75) at L=16,
+  0.3086(51) at L=32, 0.3274(47) at L=40, 0.3347(60) at L=48,
+  0.3373(104) at L=60 -- still rising at the largest enumerable L, not
+  yet converged to the large-L dynamical value (~0.36).
+- Fully jammed configurations (Krylov sector = a single state, every site
+  frozen) are common at small L and vanish fast: 16.2% at L=12, 9.5% at
+  L=16, 2.9% at L=24, 0.75% at L=32, 0.20% at L=48, 0.0% at L=56/60.
+  **The dynamical estimator discards these** (burn-in reports "jammed"),
+  which biases it low at small L -- the direct comparison is -4.7 sigma
+  at L=16, shrinking to -0.5 sigma at L=56 as jamming disappears.
+- Comparing like with like (exact value computed with jammed configs
+  removed, i.e. the sub-ensemble the dynamical estimator can actually
+  sample) against f_B(W=500L): differences are +0.0019, -0.0121,
+  -0.0052, +0.0188, -0.0163, -0.0061 at L = 16, 24, 32, 40, 48, 56, i.e.
+  +0.1, -0.9, -0.4, +1.4, -1.3, -0.5 sigma. **chi^2 = 4.97 on 6 points,
+  reduced chi^2 = 0.83** -- no detectable bias.
+- Krylov sector sizes: median 6 states at L=12 growing to 2726 at L=60,
+  fitting median ~ (1.135)^L, against (1.969)^L half-filled
+  configurations in total, so the sampled sector occupies a fraction
+  ~ (0.576)^L of its symmetry sector -- **strong fragmentation measured
+  directly in this model**, independent of the literature.
+- 3 realizations (1 at L=52, 2 at L=56) exceeded the 5e6-state cap and
+  were excluded and reported, not truncated.
+Raw data: `numerics/data/raw/static_frozen_static_frozen_20260914T063943Z/`
+and `numerics/data/raw/w_dependence_w_dependence_small_20260914T064701Z/`.
+
+**Interpretation:** [left blank]
+
+**Next question:** The validation holds at L <= 56, where jamming must be
+handled explicitly; production L >= 100 reports n_discarded = 0
+everywhere, so the jamming bias is absent there, but that is an
+extrapolation from the measured exponential decay of the jammed fraction
+rather than a direct check at production L. HYPOTHESES.md's H1 still
+states the *static* definition as its order parameter while every
+production number is a dynamical proxy -- the two are now shown to agree,
+but the H1 text has not been updated to say which is measured.
+
+**Git commit:** uncommitted (new src/scripts/configs and this entry are
+unstaged working-tree changes on top of 03b6349)
+
+---
+
+## 2026-09-14 — Exact combinatorial explanation of the forbidden gap lengths
+
+**Question:** QUESTIONS.md #3: why do active-region lengths 1, 2, 3 and 5
+never occur, while 4 and every length >= 6 do?
+
+**Hypothesis:** Suspected a hard combinatorial constraint of the 4-site
+move rather than a sampling accident, given the pattern is identical at
+all 8 L with thousands of samples each.
+
+**Method:** Exhaustive enumeration over all 2^5 = 32 five-site
+configurations (and 2^(4+d) for offsets d = 2, 3, 4), checking (i)
+whether two windows at a given offset can be simultaneously active, and
+(ii) whether firing one makes the other active. Verification script run
+ad hoc; the argument it supports is written out in the progress document.
+
+**Result:** Zero violations in all three exhaustive checks:
+- two windows at offset 1 are never simultaneously active (0/32);
+- firing window p never makes window p+1 active (0/32);
+- firing window p+1 never makes window p active (0/32).
+By contrast, offsets 2, 3 and 4 each admit simultaneously-active
+configurations (2, 2 and 4 respectively), which is what makes runs of
+6, 7 and 8 reachable. Since every flip touches exactly 4 consecutive
+sites, a maximal run of flipped sites has length >= 4; a run of exactly
+5 requires precisely the two window positions p and p+1 to have fired
+and no others, which the three checks above exclude.
+
+**Interpretation:** [left blank] -- note that the accompanying argument
+in the progress document was written by Claude and has **not** been
+reviewed by the researcher; per CLAUDE.md it should be confirmed before
+being relied on or cited.
+
+**Next question:** The same style of argument should predict the full
+multiplicity m(l) of achievable run lengths, which could be compared
+against the measured P_L(l) shape beyond just its support.
+
+**Git commit:** uncommitted (this entry is an unstaged working-tree
+change on top of 03b6349)

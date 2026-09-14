@@ -1,0 +1,36 @@
+{
+  "config_path": "numerics/config/w_dependence.yaml",
+  "config": {
+    "model": {
+      "density": 0.5,
+      "boundary_condition": "periodic"
+    },
+    "L_values": [
+      250,
+      1000,
+      4000
+    ],
+    "W_multipliers": [
+      1,
+      2,
+      5,
+      10,
+      20,
+      50,
+      100,
+      200
+    ],
+    "patience_multiplier": 20,
+    "max_steps_multiplier": 10,
+    "c_selfscale": 5,
+    "max_extra_windows": 200,
+    "n_samples_per_L": {
+      "250": 60,
+      "1000": 40,
+      "4000": 20
+    },
+    "workers": 3,
+    "master_seed": 20260914
+  },
+  "timestamp_utc": "20260914T064113Z"
+}

@@ -1,0 +1,31 @@
+# W-dependence of the rolling-window frozen fraction f_B(W).
+# Added 2026-09-14. Every H1 production number is f_B at one fixed W (5L or
+# 10L); because W enters the definition of the observable, f_B is
+# non-increasing in W and the W -> infinity limit (the static frozen fraction
+# H1 actually defines) has never been mapped. This config measures the whole
+# curve, with all W read off the same trajectories so the comparison across W
+# carries no realization noise.
+#
+# Burn-in is the production criterion (self-scaling patience, c_selfscale=5).
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+L_values: [250, 1000, 4000]
+
+W_multipliers: [1, 2, 5, 10, 20, 50, 100, 200]
+
+patience_multiplier: 20
+max_steps_multiplier: 10
+c_selfscale: 5
+max_extra_windows: 200
+
+n_samples_per_L:
+  "250": 60
+  "1000": 40
+  "4000": 20
+
+workers: 3
+
+master_seed: 20260914

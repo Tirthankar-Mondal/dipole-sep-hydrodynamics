@@ -1,0 +1,36 @@
+{
+  "config_path": "numerics/config/static_frozen.yaml",
+  "config": {
+    "model": {
+      "density": 0.5,
+      "boundary_condition": "periodic"
+    },
+    "L_values": [
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      40,
+      44,
+      48,
+      52,
+      56,
+      60
+    ],
+    "n_samples_per_L": {
+      "default": 2000,
+      "44": 1500,
+      "48": 1000,
+      "52": 600,
+      "56": 400,
+      "60": 250
+    },
+    "max_sector": 5000000,
+    "workers": 9,
+    "master_seed": 20260914
+  },
+  "timestamp_utc": "20260914T063943Z"
+}

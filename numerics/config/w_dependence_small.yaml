@@ -1,0 +1,36 @@
+# f_B(W) at the SAME small L values used by static_frozen.yaml, so the
+# dynamical estimator can be compared like-for-like against the exact
+# Krylov-sector frozen fraction. Added 2026-09-14.
+#
+# This is the validation that H1's [UNCERTAIN] flag has always asked for:
+# do the dynamical proxies (definition A / definition B) actually reproduce
+# static reachability? At these L the exact answer is computable by BFS, so
+# the comparison is against ground truth rather than another proxy.
+#
+# W is pushed to 500L here (vs 200L in w_dependence.yaml) because at small L
+# a fixed multiple of L is a much shorter absolute time.
+
+model:
+  density: 0.5
+  boundary_condition: periodic
+
+L_values: [16, 24, 32, 40, 48, 56]
+
+W_multipliers: [1, 2, 5, 10, 20, 50, 100, 200, 500]
+
+patience_multiplier: 20
+max_steps_multiplier: 10
+c_selfscale: 5
+max_extra_windows: 200
+
+n_samples_per_L:
+  "16": 400
+  "24": 400
+  "32": 400
+  "40": 300
+  "48": 300
+  "56": 300
+
+workers: 6
+
+master_seed: 20260914

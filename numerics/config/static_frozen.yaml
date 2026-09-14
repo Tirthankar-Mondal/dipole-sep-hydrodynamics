@@ -1,0 +1,27 @@
+# Exact static (Krylov-sector) frozen fraction vs L, by brute-force BFS.
+# Added 2026-09-14 to close H1's long-standing [UNCERTAIN] flag: the
+# equivalence between the dynamical frozen-fraction estimators and static
+# reachability had never been checked against actual move enumeration.
+#
+# Feasible only at small L -- cost is set by Krylov-sector size, which grows
+# roughly exponentially in L (median ~6 states at L=12, ~2100 at L=56).
+# Sample counts are tapered accordingly to keep wall time bounded.
+
+model:
+  density: 0.5              # exactly half filling; L must be even
+  boundary_condition: periodic
+
+L_values: [12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60]
+
+n_samples_per_L:
+  default: 2000
+  "44": 1500
+  "48": 1000
+  "52": 600
+  "56": 400
+  "60": 250
+
+max_sector: 5000000         # refuse (and report) rather than truncate silently
+workers: 9
+
+master_seed: 20260914
