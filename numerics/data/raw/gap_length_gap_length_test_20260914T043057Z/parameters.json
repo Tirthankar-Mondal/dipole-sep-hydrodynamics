@@ -1,0 +1,30 @@
+{
+  "config_path": "numerics/config/gap_length_test.yaml",
+  "config": {
+    "model": {
+      "density": 0.5,
+      "boundary_condition": "periodic"
+    },
+    "L_values": [
+      100,
+      200,
+      400,
+      800
+    ],
+    "patience_multiplier": 20,
+    "max_steps_multiplier": 10,
+    "rolling": {
+      "W_multiplier": 5,
+      "c_selfscale": 5,
+      "max_extra_windows": 200
+    },
+    "ensemble": {
+      "target_relative_se": 0.1,
+      "min_samples": 20,
+      "batch_size": 20,
+      "max_samples_per_N": 200
+    },
+    "master_seed": 12345
+  },
+  "timestamp_utc": "20260914T043057Z"
+}

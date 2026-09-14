@@ -69,6 +69,91 @@ def _trend_test(window_fractions):
             "zero_variance": False}
 
 
+def _self_scaling_burnin(L, density, patience_multiplier, max_steps_multiplier,
+                          W_multiplier, c_selfscale, max_extra_windows, rng):
+    """Shared burn-in for the rolling-window (definition B) measurements --
+    extracted 2026-09-14 so the H2 gap-length measurement can reuse the
+    exact same self-scaling burn-in as H1's measure_frozen_fraction_rolling
+    without duplicating it (locked in 2026-09-13, see that function's
+    docstring for the burn-in's own justification). Pure extraction, no
+    change in logic -- H1 results are expected to be unaffected.
+
+    On success, returns the chain positioned immediately after burn-in
+    completes, ready for a caller-specific measurement phase:
+        {"status": "ready", "chain": ..., "ever_flipped": ...,
+         "T0": ..., "W": ..., "burn_in_steps": ...}
+    On failure, one of:
+        {"status": "jammed", "burn_in_steps": ..., "ever_flipped": ...}
+        {"status": "t0_not_reached", "burn_in_steps": ...}
+        {"status": "self_scaling_cap_exceeded", "burn_in_steps": ...}
+    """
+    chain = DipoleChain(L, density, rng)
+    ever_flipped = np.zeros(L, dtype=bool)
+
+    patience = patience_multiplier * L
+    max_steps = max_steps_multiplier * patience
+
+    steps_since_growth = 0
+    steps_taken = 0
+    last_growth_step = 0
+    reached_T0 = False
+
+    while steps_taken < max_steps:
+        flipped_sites = chain.step()
+        if flipped_sites is None:
+            return {"status": "jammed", "burn_in_steps": steps_taken,
+                    "ever_flipped": ever_flipped}
+        steps_taken += 1
+
+        grew = not ever_flipped[flipped_sites].all()
+        ever_flipped[flipped_sites] = True
+
+        if grew:
+            steps_since_growth = 0
+            last_growth_step = steps_taken
+        else:
+            steps_since_growth += 1
+            if steps_since_growth >= patience:
+                reached_T0 = True
+                break
+
+    if not reached_T0:
+        return {"status": "t0_not_reached", "burn_in_steps": steps_taken}
+
+    T0 = steps_taken
+    G = last_growth_step
+    W = W_multiplier * L
+
+    trigger_window = None
+    k = 0
+    while k < max_extra_windows:
+        flipped_in_window = np.zeros(L, dtype=bool)
+        grew_in_window = False
+        for _ in range(W):
+            flipped_sites = chain.step()
+            if flipped_sites is None:
+                return {"status": "jammed", "burn_in_steps": T0 + k * W,
+                        "ever_flipped": ever_flipped}
+            flipped_in_window[flipped_sites] = True
+            if not ever_flipped[flipped_sites].all():
+                grew_in_window = True
+            ever_flipped[flipped_sites] = True
+        t_now = T0 + (k + 1) * W
+        if grew_in_window:
+            G = t_now
+        if (t_now - G) >= c_selfscale * G:
+            trigger_window = k + 1
+            break
+        k += 1
+
+    if trigger_window is None:
+        return {"status": "self_scaling_cap_exceeded",
+                "burn_in_steps": T0 + max_extra_windows * W}
+
+    return {"status": "ready", "chain": chain, "ever_flipped": ever_flipped,
+            "T0": T0, "W": W, "burn_in_steps": T0 + trigger_window * W}
+
+
 def measure_frozen_fraction_rolling(L, density, patience_multiplier,
                                      max_steps_multiplier, W_multiplier,
                                      M, c_selfscale, max_extra_windows, rng):
@@ -85,90 +170,32 @@ def measure_frozen_fraction_rolling(L, density, patience_multiplier,
     cumulative-since-t=0 definition, a site can re-enter the frozen set
     once it has been quiet for W steps, even if it flipped earlier.
 
-    Burn-in: first reach the coarse fixed-patience point T0 (same
-    growth-phase-stops criterion as measure_frozen_fraction), then keep
-    extending in windows of length W = W_multiplier*L until
-    (t - G) >= c_selfscale * G, where G is the step index of the most
-    recent first-time flip (tracked at window granularity). This pins
-    the patience/growth-phase ratio at c_selfscale for every N, fixing
-    the plain fixed-patience estimator's problem of that ratio shrinking
-    with N (RESEARCH_LOG.md, 2026-09-13: fixed patience showed
-    significant drift in 2/3 trials at N=100,000; self-scaling showed
-    0/10 across N=30,000 and N=100,000).
-
-    After burn-in, runs M non-overlapping measurement windows and returns
-    their mean plus the trend diagnostic.
+    Burn-in: see _self_scaling_burnin. After burn-in, runs M
+    non-overlapping measurement windows and returns their mean plus the
+    trend diagnostic.
     """
-    chain = DipoleChain(L, density, rng)
-    ever_flipped = np.zeros(L, dtype=bool)
+    burnin = _self_scaling_burnin(L, density, patience_multiplier,
+                                   max_steps_multiplier, W_multiplier,
+                                   c_selfscale, max_extra_windows, rng)
 
-    patience = patience_multiplier * L
-    max_steps = max_steps_multiplier * patience
-
-    steps_since_growth = 0
-    steps_taken = 0
-    last_growth_step = 0
-    reached_T0 = False
-
-    while steps_taken < max_steps:
-        flipped_sites = chain.step()
-        if flipped_sites is None:
-            return {"converged": True, "burn_in_steps": steps_taken,
-                    "frozen_fraction": 1.0 - ever_flipped.mean(),
-                    "frozen_fraction_std_across_windows": 0.0,
-                    "window_fractions": [], "trend_slope": 0.0,
-                    "trend_pvalue": 1.0, "zero_variance": True,
-                    "jammed_before_measurement": True}
-        steps_taken += 1
-
-        grew = not ever_flipped[flipped_sites].all()
-        ever_flipped[flipped_sites] = True
-
-        if grew:
-            steps_since_growth = 0
-            last_growth_step = steps_taken
-        else:
-            steps_since_growth += 1
-            if steps_since_growth >= patience:
-                reached_T0 = True
-                break
-
-    if not reached_T0:
-        return {"converged": False, "reason": "T0_not_reached", "burn_in_steps": steps_taken}
-
-    T0 = steps_taken
-    G = last_growth_step
-    W = W_multiplier * L
-
-    trigger_window = None
-    k = 0
-    while k < max_extra_windows:
-        flipped_in_window = np.zeros(L, dtype=bool)
-        grew_in_window = False
-        for _ in range(W):
-            flipped_sites = chain.step()
-            if flipped_sites is None:
-                return {"converged": True, "burn_in_steps": T0 + k * W,
-                        "frozen_fraction": 1.0 - ever_flipped.mean(),
-                        "frozen_fraction_std_across_windows": 0.0,
-                        "window_fractions": [], "trend_slope": 0.0,
-                        "trend_pvalue": 1.0, "zero_variance": True,
-                        "jammed_before_measurement": True}
-            flipped_in_window[flipped_sites] = True
-            if not ever_flipped[flipped_sites].all():
-                grew_in_window = True
-            ever_flipped[flipped_sites] = True
-        t_now = T0 + (k + 1) * W
-        if grew_in_window:
-            G = t_now
-        if (t_now - G) >= c_selfscale * G:
-            trigger_window = k + 1
-            break
-        k += 1
-
-    if trigger_window is None:
+    if burnin["status"] == "jammed":
+        ever_flipped = burnin["ever_flipped"]
+        return {"converged": True, "burn_in_steps": burnin["burn_in_steps"],
+                "frozen_fraction": 1.0 - ever_flipped.mean(),
+                "frozen_fraction_std_across_windows": 0.0,
+                "window_fractions": [], "trend_slope": 0.0,
+                "trend_pvalue": 1.0, "zero_variance": True,
+                "jammed_before_measurement": True}
+    if burnin["status"] == "t0_not_reached":
+        return {"converged": False, "reason": "T0_not_reached",
+                "burn_in_steps": burnin["burn_in_steps"]}
+    if burnin["status"] == "self_scaling_cap_exceeded":
         return {"converged": False, "reason": "self_scaling_cap_exceeded",
-                "burn_in_steps": T0 + max_extra_windows * W}
+                "burn_in_steps": burnin["burn_in_steps"]}
+
+    chain = burnin["chain"]
+    ever_flipped = burnin["ever_flipped"]
+    W = burnin["W"]
 
     window_fractions = []
     for _ in range(M):
@@ -189,7 +216,7 @@ def measure_frozen_fraction_rolling(L, density, patience_multiplier,
 
     return {
         "converged": True,
-        "burn_in_steps": T0 + trigger_window * W,
+        "burn_in_steps": burnin["burn_in_steps"],
         "frozen_fraction": float(window_fractions.mean()),
         "frozen_fraction_std_across_windows": (
             float(window_fractions.std(ddof=1)) if len(window_fractions) > 1 else 0.0

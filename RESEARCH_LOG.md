@@ -36,8 +36,7 @@ equivalence used to justify the patience-based stopping criterion is still
 unverified against brute-force enumeration (see HYPOTHESES.md, H1,
 flagged [UNCERTAIN]).
 
-**Git commit:** uncommitted (all pipeline code, config, and this log entry
-are currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -86,8 +85,7 @@ vanishing per the fitting/comparison procedure in HYPOTHESES.md — not yet
 done. The static/combinatorial reachability equivalence remains
 unverified against brute-force enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (pipeline code, config, and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -153,8 +151,7 @@ from HYPOTHESES.md still hasn't been run on this data. The
 static/combinatorial reachability equivalence remains unverified against
 brute-force enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (config change and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -199,8 +196,7 @@ rigorous comparison (e.g. AIC/BIC) are needed — not yet done. The
 static/combinatorial reachability equivalence remains unverified against
 brute-force enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (analysis notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -264,8 +260,7 @@ this denser dataset -- not yet done. The static/combinatorial
 reachability equivalence remains unverified against brute-force
 enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (config and this log entry are currently
-unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -311,8 +306,7 @@ meaningful constraint on a/alpha, since fitting_range alone cannot
 provide one. The static/combinatorial reachability equivalence remains
 unverified against brute-force enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (new notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -352,8 +346,7 @@ HYPOTHESES.md — not yet done. The static/combinatorial reachability
 equivalence remains unverified against brute-force enumeration (flagged
 [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (new notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -413,8 +406,7 @@ large |residual|/sigma) rather than adding more model parameters to
 noise. The static/combinatorial reachability equivalence remains
 unverified against brute-force enumeration (flagged [UNCERTAIN] in H1).
 
-**Git commit:** uncommitted (updated notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -482,8 +474,7 @@ enumeration of the reachable set at small N (16-24) against the
 estimator's output — the latter also closes the long-standing
 [UNCERTAIN] flag in H1.
 
-**Git commit:** uncommitted (updated notebook and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -529,8 +520,7 @@ n_active(t) across the whole range (not shrinking with N).
 (reusing the old fixed-patience criterion before starting the M
 measurement windows) is actually sufficient -- not yet checked.
 
-**Git commit:** uncommitted (frozen_fraction.py changes and this log
-entry are currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -562,8 +552,7 @@ was still large (>=3-5x, per the earlier patience-margin analysis).
 Needed to check the large-N range (N>=10,000) where that ratio had
 fallen to <1x before trusting the estimator there too.
 
-**Git commit:** uncommitted (this log entry is an unstaged working-tree
-change on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -609,8 +598,7 @@ started. Needed a burn-in fix before trusting any rolling-window
 production run at this scale. Separately, the NaN trend_pvalue bug
 (zero-variance case) needed fixing regardless of N.
 
-**Git commit:** uncommitted (this log entry is an unstaged working-tree
-change on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -671,9 +659,7 @@ already shown 0 significant trends in the earlier validation, so method
 1's extra cost there is a safety margin, not a fix for an observed
 problem at that scale.
 
-**Git commit:** uncommitted (frozen_fraction.py, burnin_comparison.py,
-and this log entry are currently unstaged working-tree changes on top
-of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -711,8 +697,7 @@ will fail to re-execute until/unless someone points them at
 `data/archive/...` or they're accepted as historical artifacts from the
 superseded definition, not updated.
 
-**Git commit:** uncommitted (archive move and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -743,8 +728,7 @@ rolling-window definition still need to be written once
 production_intermediate.yaml (and eventually production_large_scale.yaml)
 finish running.
 
-**Git commit:** uncommitted (notebook move and this log entry are
-currently unstaged working-tree changes on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -800,8 +784,7 @@ researcher, not yet done at the time of this entry. Longer-term:
 production_large_scale.yaml (N up to 100,000) still needs rescoping
 before it can run (previously estimated at ~37 days as specified).
 
-**Git commit:** uncommitted (this log entry is an unstaged working-tree
-change on top of 832ba5c)
+**Git commit:** a6fb435e24ed097d86c89290ce43b5a94a7215a1
 
 ---
 
@@ -895,8 +878,7 @@ new settings, same 20 N values) to see whether the new settings actually
 reduced point-to-point wiggle, per researcher request -- not yet done at
 the time of this entry.
 
-**Git commit:** uncommitted (this log entry is an unstaged working-tree
-change on top of a6fb435)
+**Git commit:** 71a11140fbb193a017585e157fa47443a2322b8e
 
 ---
 
@@ -937,8 +919,7 @@ is revealing a lower true plateau that the old c_selfscale=5 slightly
 overestimated by measuring before full equilibration, versus some other
 explanation. Not yet investigated.
 
-**Git commit:** uncommitted (new notebook and this log entry are
-currently unstaged working-tree changes on top of a6fb435)
+**Git commit:** 71a11140fbb193a017585e157fa47443a2322b8e
 
 ---
 
@@ -998,11 +979,7 @@ Not yet done as of this entry -- researcher moved on to specifying
 min_samples raised to 40 only) and `production_large_scale.yaml`'s N
 grid instead.
 
-**Git commit:** uncommitted (this log entry is a backfill -- the
-analysis was reported to the researcher in conversation before this
-entry was written, which is against the "log as you go" rule in
-CLAUDE.md; noted here as a process error, not repeated for the entry
-below.)
+**Git commit:** 71a11140fbb193a017585e157fa47443a2322b8e
 
 ---
 
@@ -1044,5 +1021,275 @@ this expectation. `production_large_scale.yaml` (currently N=10,000 to
 launch automatically at 2026-09-14 00:00 local via a session-only cron
 job) will extend the range this expectation can be checked against.
 
-**Git commit:** uncommitted (this log entry, plus the backfilled entry
-above, are unstaged working-tree changes on top of a6fb435)
+**Git commit:** 71a11140fbb193a017585e157fa47443a2322b8e
+
+---
+
+## 2026-09-14 — H2 pipeline built (gap-length distribution) and smoke-tested
+
+**Question:** Build the measurement pipeline for H2 (active-region/
+gap-length distribution between frozen sites, per HYPOTHESES.md) and
+check it runs sensibly before any real production use.
+
+**Hypothesis:** N/A -- infrastructure build + smoke test, not a physics
+result.
+
+**Method:**
+- Refactored `numerics/src/frozen_fraction.py`: extracted the self-scaling
+  burn-in out of `measure_frozen_fraction_rolling` into a shared
+  `_self_scaling_burnin` helper (researcher-approved, 2026-09-14), so H2
+  reuses H1's locked-in burn-in exactly rather than duplicating it.
+  Verified behavior-preserving: same seed/params against the pre-refactor
+  code (git HEAD at the time, 71a1114) gave byte-identical
+  frozen_fraction, burn_in_steps, and trend_pvalue at L=200.
+- New `numerics/src/gap_length.py`: `measure_gap_lengths` (single
+  realization: burn-in, then one post-burn-in measurement window,
+  frozen-site mask, cyclic gap extraction) and
+  `run_ensemble_gap_lengths` (pools nonzero gaps across realizations,
+  adaptive-stops on the snapshot frozen fraction's relative SE, per
+  researcher's choice 2026-09-14). Zero-length gaps (adjacent frozen
+  sites) are discarded from the pooled distribution per researcher
+  instruction, 2026-09-14 -- reported separately as n_zero_gaps_discarded
+  / zero_gap_rate.
+- New `numerics/scripts/run_gap_length.py` (config-driven, mirrors
+  `run_frozen_fraction.py`) and `numerics/config/gap_length_test.yaml`
+  (L=100,200,400,800; W_multiplier=5, c_selfscale=5, same as H1's
+  locked-in rolling settings; target_relative_se=0.10, min_samples=20,
+  max_samples_per_N=200 -- a quick check, not production).
+- Ran `gap_length_test.yaml`. Runtime estimated beforehand from a single-
+  realization timing check (0.026s-0.235s per sample at L=100-800,
+  worst-case ~90s for the full grid) -- actual runtime 11s.
+
+**Result:**
+- All 4 L values converged; 0 discarded, 0 jammed, min_samples=20 was
+  sufficient to satisfy the relative-SE target at every L.
+- L=100: gap_mean=16.113 (std 11.226), n_pooled_gaps=80, zero_gap_rate=0.887
+- L=200: gap_mean=16.025 (std 11.867), n_pooled_gaps=157, zero_gap_rate=0.894
+- L=400: gap_mean=15.815 (std 13.098), n_pooled_gaps=329, zero_gap_rate=0.882
+- L=800: gap_mean=15.454 (std 12.116), n_pooled_gaps=639, zero_gap_rate=0.896
+- Notable: ~88-90% of all raw (pre-discard) gaps between consecutive
+  frozen sites are zero-length (frozen sites directly adjacent) at every
+  L tested here -- only ~10-12% of gaps are nonzero, and it is only
+  those that are pooled into gap_mean/gap_length_std above.
+- Raw per-L pooled (nonzero) gap arrays are in
+  `numerics/data/raw/gap_length_gap_length_test_20260914T043057Z/`.
+
+**Interpretation:** [left blank]
+
+**Next question:** This is a smoke test at small L (100-800) with a loose
+target_relative_se (0.10) -- not yet a real production run for H2. A
+production config (larger L range, e.g. doubling further per H2's
+100-12,800 range in HYPOTHESES.md, tighter target_relative_se) still
+needs to be designed and cost-estimated before running. The shape-
+collapse (H2a) and tail-scaling (H2b) analysis itself (rescaling P_L(l)
+by <l>_L, fitting tails) has not been attempted yet -- belongs in a
+notebook once real production data exists.
+
+**Git commit:** uncommitted (this entry, the refactor, and the new H2
+files are unstaged working-tree changes on top of 71a1114)
+
+---
+
+## 2026-09-14 — H2 production run: gap-length distribution, L=100-12,800
+
+**Question:** First real production measurement of H2's active-region
+(gap-length) distribution across the full L range stated in
+HYPOTHESES.md.
+
+**Hypothesis:** N/A -- production data collection, not a fit. (H2a/H2b
+model comparison, per HYPOTHESES.md, is a separate not-yet-done step.)
+
+**Method:** `numerics/config/gap_length_production.yaml`: L in {100, 200,
+400, 800, 1600, 3200, 6400, 12800} (8 doublings), density=0.5, PBC.
+Rolling estimator burn-in reused from H1 (W_multiplier=5, c_selfscale=5,
+max_extra_windows=200, locked in 2026-09-13), single post-burn-in
+snapshot per realization (no M-averaging), zero-length gaps discarded
+from the pooled distribution (both per researcher choice, 2026-09-14).
+Ensemble: target_relative_se=0.01 on the snapshot frozen fraction,
+min_samples=20, batch_size=20, max_samples_per_N=5000. Master seed:
+20260914.
+
+Runtime estimated beforehand at ~800s (~13-14 min) from real
+single-realization timing at all 8 L values plus a power-law
+extrapolation of relative std from the L=100-800 smoke test (flagged at
+the time as the weak link in the estimate, based on only 4 noisy
+points). Actual runtime: 14m 22s -- within the pre-run estimate range.
+
+**Result:**
+- All 8 L values converged; 0 discarded, 0 jammed at every L.
+- L=100: gap_mean=16.115 (std 12.120), n_realizations=1400, n_pooled_gaps=5643, zero_gap_rate=0.885
+- L=200: gap_mean=15.730 (std 12.103), n_realizations=720, n_pooled_gaps=5825, zero_gap_rate=0.889
+- L=400: gap_mean=15.529 (std 11.885), n_realizations=320, n_pooled_gaps=5261, zero_gap_rate=0.886
+- L=800: gap_mean=15.633 (std 11.777), n_realizations=160, n_pooled_gaps=5225, zero_gap_rate=0.887
+- L=1600: gap_mean=15.554 (std 11.725), n_realizations=100, n_pooled_gaps=6544, zero_gap_rate=0.888
+- L=3200: gap_mean=15.665 (std 11.883), n_realizations=60, n_pooled_gaps=7793, zero_gap_rate=0.889
+- L=6400: gap_mean=15.636 (std 11.935), n_realizations=40, n_pooled_gaps=10416, zero_gap_rate=0.888
+- L=12800: gap_mean=15.407 (std 11.739), n_realizations=20, n_pooled_gaps=10530, zero_gap_rate=0.888
+- Both gap_mean (~15.4-16.1) and zero_gap_rate (~0.885-0.889) are
+  essentially flat across all 8 L values, spanning just over 2 decades
+  in L.
+- Raw per-L pooled (nonzero) gap arrays and full parameters are in
+  `numerics/data/raw/gap_length_gap_length_production_20260914T045549Z/`.
+
+**Interpretation:** [left blank]
+
+**Next question:** The H2a (shape collapse) / H2b (tail anomaly)
+analysis from HYPOTHESES.md has not been done yet -- specifically,
+rescaling <l>_L * P_L(l) vs l/<l>_L across all 8 L to check for
+collapse, and fitting the tail (exponential vs power-law) at each L to
+check whether the preferred form or its parameter drifts with L. Belongs
+in a notebook once undertaken, not yet built.
+
+**Git commit:** uncommitted (this entry and the production run's raw
+data are unstaged working-tree changes on top of 71a1114)
+
+---
+
+## 2026-09-14 — H2a/H2b analysis notebook: shape collapse and tail fits
+
+**Question:** Do the pooled gap-length distributions from
+`gap_length_gap_length_production_20260914T045549Z` support H2a (shape
+collapse onto an L-independent, memoryless-tailed curve) or H2b (tail
+anomaly that persists/grows with L), per HYPOTHESES.md?
+
+**Hypothesis:** N/A -- data analysis of already-collected production
+data, not a new simulation; both candidate outcomes examined side by
+side, no conclusion drawn here per CLAUDE.md.
+
+**Method:** New notebook
+`numerics/notebooks/analysis/h2_gap_length_distribution.ipynb`. For each
+of the 8 L values: (1) empirical PMF P_L(l) plotted directly; (2)
+rescaled collapse plot of <l>_L * P_L(l) vs l/<l>_L, all L overlaid; (3)
+tail fits over l >= 15 (chosen as roughly at/above the pooled mean),
+both exponential (log P_L(l) linear in l) and power-law (log P_L(l)
+linear in log l), via OLS, reporting fitted parameter and R^2 for both
+forms at each L -- no claim that either form is the correct one.
+
+**Result:**
+- **Notable, unplanned observation:** gap lengths of exactly 1, 2, 3, and
+  5 have zero occurrences at every one of the 8 L values (thousands of
+  samples each at L=100 and L=12,800) -- this exact pattern (absent at
+  1,2,3,5; present at 4 with an elevated count; present at every value
+  from 6 upward) is identical across the full L range tested. Not
+  explained here; flagged for the researcher.
+- Mean/std recomputed directly from the raw pooled arrays match
+  summary.json exactly at all 8 L (16.115, 15.730, 15.529, 15.633,
+  15.554, 15.665, 15.636, 15.407 respectively) -- no discrepancy.
+- Tail fits, l>=15 (n_tail_points 65-77 per L):
+  - exponential decay length lambda: 13.264, 13.857, 13.896, 13.781,
+    14.590, 13.525, 13.308, 15.003 (L=100..12,800) -- R^2 in [0.876, 0.954]
+  - power-law exponent alpha: 3.226, 3.253, 3.277, 3.196, 3.264, 3.388,
+    3.546, 3.465 -- R^2 in [0.897, 0.951]
+  - Neither fit form is decisively preferred by R^2 at any L (both in
+    the high-0.8s to mid-0.9s throughout); neither parameter shows an
+    obvious monotonic trend with L across this range, though both
+    fluctuate by roughly +-10% around their respective means.
+- Rescaled-collapse and raw-PMF plots are in the notebook (image
+  outputs, not reproduced in this text log).
+
+**Interpretation:** [left blank]
+
+**Next question:** No AIC/formal model-selection criterion was computed
+(R^2 only, at one cutoff choice, l=15, not scanned). The forbidden-
+gap-length observation (l=1,2,3,5 never occurring) is not connected to
+the underlying move rule here -- worth investigating separately, e.g.
+by checking whether it is a hard combinatorial consequence of the
+dipole-conserving 4-site move under the rolling-window frozen-site
+definition, or specific to this snapshot procedure.
+
+**Git commit:** uncommitted (this entry and the new notebook are
+unstaged working-tree changes on top of 71a1114)
+
+---
+
+## 2026-09-14 — H2b follow-up: full-range exponential vs power-law comparison
+
+**Question:** Researcher observation on the semilog PMF plot in
+`h2_gap_length_distribution.ipynb`: it looks straight, which an
+exponential distribution predicts (a power law would look straight on
+a log-log plot instead, and curved on semilog). The notebook's existing
+tail-fit comparison only covered l>=15 and was close/mixed between the
+two forms there -- does the same OLS comparison over the *entire*
+observed range support the exponential reading?
+
+**Hypothesis:** N/A -- direct follow-up check on an observation, not a
+new physics hypothesis.
+
+**Method:** Added a log-log version of the raw PMF plot and a full-range
+(l>=4, no cutoff) exponential-vs-power-law R^2 comparison to
+`h2_gap_length_distribution.ipynb`, using the same OLS approach as the
+existing tail-only fit cell.
+
+**Result:**
+- R^2, full range (l=4 upward), exponential vs power-law, at each L:
+  - L=100: 0.9519 vs 0.8786
+  - L=200: 0.9165 vs 0.8718
+  - L=400: 0.9394 vs 0.8967
+  - L=800: 0.9432 vs 0.8947
+  - L=1600: 0.9103 vs 0.8915
+  - L=3200: 0.9658 vs 0.9036
+  - L=6400: 0.9521 vs 0.8891
+  - L=12800: 0.9151 vs 0.9006
+- Exponential R^2 exceeds power-law R^2 at every one of the 8 L values
+  when fit over the full range -- unlike the tail-only (l>=15)
+  comparison logged earlier today, which was close/mixed (power-law
+  R^2 higher at 5 of 8 L there).
+
+**Interpretation:** [left blank]
+
+**Next question:** None of this is a formal model-selection criterion
+(AIC/BIC, or a likelihood-ratio test) -- still just R^2 comparison. The
+forbidden-gap-length observation (l=1,2,3,5 absent) remains
+uninvestigated.
+
+**Git commit:** uncommitted (this entry and the notebook update are
+unstaged working-tree changes on top of 71a1114)
+
+---
+
+## 2026-09-14 — Literature review: 7 papers checked against H1/H2/QUESTIONS.md #3
+
+**Question:** Does anything in `numerics/theory/Papers/` bear on H1,
+H2, or the forbidden-gap-length question?
+
+**Method:** Read and reconstructed 7 papers (one a 150-page thesis).
+Full reconstructions and per-paper connection assessments are in
+`LITERATURE.md`; applicable-details notes for the papers that turned
+out useful are in `numerics/theory/Notes/` -- refer there for equations,
+section numbers, and derivations, not repeated here.
+
+**Result -- which ones are actually helpful, and why:**
+- **Classen-Howes (2024) thesis, Ch.5 Sec.5.1** studies our *exact*
+  model. Independently predicts strong fragmentation at every filling
+  (theoretical support for H1 in kind, no number to compare against
+  0.36 though). Gives an exact, exponential-in-length active-bubble
+  density formula (likely origin of H2's exponential fit). Explains why
+  gap lengths 1-3 never occur and why 4 is special; does not cover
+  length 5. See `numerics/theory/Notes/classen-howes-2024-thesis.md`.
+- **Morningstar, Khemani & Huse (2020):** our model is exactly their
+  hardcore-restricted sub-sector; their frozen-site definition matches
+  what our rolling-window estimator targets. See
+  `numerics/theory/Notes/morningstar-khemani-huse-2020.md`.
+- **Moudgalya & Motrunich (2021):** not our model, but a reusable exact-
+  counting technique (canonical form -> tiling -> recursion) applicable
+  to an independent derivation of H2/H3, not yet attempted. See
+  `numerics/theory/Notes/moudgalya-motrunich-2021.md`.
+- Three papers (Han-Lake-Ro 2304.03276, Glorioso et al. 2105.13365,
+  Zerba et al. PRXQuantum.6.020321) checked and found to be
+  background/analogy only -- opposite (dense, ergodic) regime, nothing
+  applicable, no Notes/ file made for these.
+- One paper (Sala, Rakovszky, Verresen, Knap & Pollmann, 1904.04266),
+  flagged by three of the above as the likely missing reference and
+  added by the researcher, was checked directly and found **not** to
+  apply -- structural mismatch (vacancy-mediated dynamics; their frozen
+  blocks are exactly our active pattern). No Notes/ file made.
+
+**Interpretation:** [left blank]
+
+**Next question:** Extending the Classen-Howes thesis's Appendix B.6
+recursion to an exact rho_F(nu=1/2) and an exact forbidden-length table
+would give real derived numbers to check against the empirical 0.36 and
+the 1,2,3,5-forbidden pattern -- proposed there, not attempted.
+
+**Git commit:** uncommitted (LITERATURE.md, numerics/theory/Notes/, and
+this entry are unstaged working-tree changes on top of 71a1114)

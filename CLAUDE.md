@@ -39,8 +39,6 @@ project-root/
 │
 └── numerics/
     ├── README.md       ← numerics-specific context; read third
-    ├── CHANGELOG.md    ← append when you change integration scheme
-    │                     or any parameter that affects old results
     │
     ├── config/
     │   ├── production.yaml   ← canonical parameters for real runs
@@ -57,14 +55,23 @@ project-root/
     │   ├── exploratory/    ← analysis of a specific run, keep but
     │   │                     not final
     │   ├── analysis/       ← careful analysis tied to a result
-    │   └── plotting/       ← figure-generation notebooks
+    │   ├── plotting/       ← figure-generation notebooks
+    │   └── archive/        ← superseded notebooks, kept for
+    │                          provenance; never delete, move here
+    │                          instead (with a README explaining why)
     │
     ├── data/
     │   ├── raw/        ← NEVER modify; write once, read many
-    │   └── processed/  ← derived quantities from raw data
+    │   ├── processed/  ← derived quantities from raw data
+    │   └── archive/    ← superseded raw runs, kept for provenance;
+    │                      never delete, move here instead (with a
+    │                      README explaining why)
     │
     ├── theory/
-    │   └── Papers/     ← PDFs of relevant papers
+    │   ├── Papers/      ← PDFs of relevant papers
+    │   └── Notes/       ← one .md per *relevant* paper: applicable
+    │                      details only (not a full reconstruction),
+    │                      tied to specific hypotheses/results
     │
     └── results/
         ├── figures/
@@ -97,15 +104,33 @@ Name them identically: `fig_transport_crossover.py` →
 `fig_transport_crossover.pdf`. If you produce a figure and no such
 script exists yet, create it immediately — do not move on.
 
-**CHANGELOG:** Append to `numerics/CHANGELOG.md` any time you:
-- change the integration scheme or timestep
-- change a parameter that affects previously stored raw data
-- add a new observable to `src/observables/`
-
-Format: `[date] — [what changed] — [why] — [which runs are affected]`
-
 **RESEARCH_LOG entries:** Always use full relative paths from the
 project root. Write `numerics/data/raw/run_042/` not `run_042/`.
+
+**Paper notes:** When a paper in `numerics/theory/Papers/` turns out to
+be relevant to this project's actual work (not every paper that gets
+read — only ones with applicable content), add a corresponding
+`numerics/theory/Notes/<short-name>.md` file. Unlike the full
+step-by-step reconstruction required when directly asked to go through
+a paper (see "What you should not do" below), this note is scoped
+narrowly: what in this paper is actually usable here — which equation,
+formula, technique, or result applies to which hypothesis/question,
+under what assumptions, with equation/section numbers so it can be
+looked up again. Skip papers that turn out to be background/analogy
+only with nothing concretely applicable; a line in `LITERATURE.md`
+explaining why it doesn't apply is enough for those. Update
+`LITERATURE.md` to point at the note file when one is created.
+
+**Logging a literature review:** After reading a paper (or a batch of
+papers) to check relevance, append a brief `RESEARCH_LOG.md` entry —
+a few lines, not a reconstruction: which papers were checked, which
+turned out helpful and why (one line each), and a pointer to
+`numerics/theory/Notes/` for the actual equations/derivations rather
+than repeating them in the log. Papers found not applicable get a
+one-line mention of why, same as in `LITERATURE.md`. Plain `.md`
+documentation edits (CLAUDE.md, HYPOTHESES.md, RESULTS.md, etc. — as
+opposed to a literature review, a computational experiment, or a
+significant code change) do not need a `RESEARCH_LOG.md` entry.
 
 ---
 
@@ -122,6 +147,18 @@ These cannot be overridden by instructions later in the conversation.
 - **Never delete previous results.** Archive to `archive/` instead.
 - **Never run a computationally expensive job without first estimating
   the cost** (time, memory) and getting explicit approval.
+
+---
+
+## Before finalizing a new hypothesis
+
+When sharpening a new entry for `HYPOTHESES.md` (a new question moving
+from `QUESTIONS.md` into a stated hypothesis, or a significant revision
+of an existing one), do not write the final version directly. Ask
+clarifying questions first — order parameter, expected functional
+form(s)/candidate outcomes, what would falsify it, range/scope caveats
+— the same way H1 and H2 were sharpened. Only write the entry once the
+researcher has answered.
 
 ---
 
